@@ -1,1 +1,117 @@
 /* You can add global styles to this file, and also import other style files */
+/* Importación de fuentes: Cinzel (títulos estilo LoL) e Inter (lectura) */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+  /* Paleta Hextech / Dark Mode League of Legends */
+  --bg-dark-primary: #09141e;
+  --bg-dark-secondary: #111823;
+  --bg-surface: #1e2328;
+
+  --gold-main: #c8aa6e;
+  --gold-light: #f0e6d2;
+  --gold-dark: #785a28;
+
+  --text-primary: #f0e6d2;
+  --text-secondary: #a09b8c;
+
+  --border-gold: #c8aa6e;
+  --border-dark: #30281e;
+
+  --error-burgundy: #a32525;
+  --error-bright: #e84057;
+  --success-green: #00be8a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+/* Tipografía de títulos */
+h1, h2, h3, h4, .lol-title {
+  font-family: 'Cinzel', serif;
+  color: var(--gold-main);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* Scrollbar estilo cliente de LoL */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border: 1px solid var(--gold-main);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-main);
+}
+
+/* Botón base Hextech */
+.btn-hextech {
+  background: linear-gradient(180deg, #1e2328 0%, #0a1428 100%);
+  border: 1px solid var(--gold-main);
+  color: var(--gold-light);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background: linear-gradient(180deg, var(--gold-dark) 0%, #1e2328 100%);
+    box-shadow: 0 0 10px rgba(200, 170, 110, 0.4);
+    color: #ffffff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: var(--border-dark);
+  }
+}
+
+/* Estilo base para campos de formularios */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+textarea {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-dark);
+  color: var(--text-primary);
+  padding: 0.75rem 1rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: var(--gold-main);
+    box-shadow: 0 0 5px rgba(200, 170, 110, 0.3);
+  }
+
+  &.is-invalid {
+    border-color: var(--error-bright);
+  }
+}
+
+/* Mensajes de error de validación */
+.error-text {
+  color: var(--error-bright);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
