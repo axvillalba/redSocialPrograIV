@@ -1,0 +1,59 @@
+<div class="perfil-container">
+  <div class="hextech-card" *ngIf="!cargando && usuario">
+
+    <!-- Encabezado del Perfil -->
+    <div class="perfil-header">
+      <div class="avatar-wrapper">
+        <img [src]="obtenerAvatar(usuario)" (error)="errorImagen($event)" alt="Avatar Invocador" class="avatar-img" />
+        <div class="hextech-frame"></div>
+      </div>
+
+      <h2 class="perfil-nombre">{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+      <span class="perfil-tag">@{{ usuario.nombreUsuario }}</span>
+      <span class="badge-rol" [class.admin]="usuario.perfil === 'administrador'">
+        {{ usuario.perfil | uppercase }}
+      </span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Detalles del Invocador -->
+    <div class="perfil-body">
+      <div class="info-group">
+        <label>Correo Electrónico</label>
+        <p>{{ usuario.correo }}</p>
+      </div>
+
+      <div class="info-group">
+        <label>Fecha de Nacimiento</label>
+        <p>{{ usuario.fechaNacimiento | date:'dd/MM/yyyy' }}</p>
+      </div>
+
+      <div class="info-group full-width">
+        <label>Descripción / Bio</label>
+        <p class="descripcion">{{ usuario.descripcion || 'Sin descripción registrada.' }}</p>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="perfil-actions">
+      <a routerLink="/publicaciones" class="btn-hextech btn-secondary">
+        VOLVER A LA GRIETA
+      </a>
+      <button (click)="cerrarSesion()" class="btn-hextech btn-danger">
+        CERRAR SESIÓN
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Estado de Carga / Error -->
+  <div class="hextech-card text-center" *ngIf="cargando">
+    <p class="loading-text">CARGANDO DATOS DE INVOCADOR...</p>
+  </div>
+
+  <div class="hextech-card text-center" *ngIf="errorMensaje">
+    <p class="error-text">{{ errorMensaje }}</p>
+    <a routerLink="/publicaciones" class="btn-hextech btn-secondary">VOLVER</a>
+  </div>
+</div>

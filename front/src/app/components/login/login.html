@@ -1,0 +1,34 @@
+
+<div class="auth-container">
+
+  <div class="auth-box">
+    <h2 class="lol-title">Iniciar Sesión</h2>
+    <p class="subtitle">Ingresá tu usuario o correo electrónico</p>
+
+    <div *ngIf="errorMensaje" class="error-banner">{{ errorMensaje }}</div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Usuario / Correo</label>
+        <input type="text" formControlName="login" placeholder="ejemplo@lol.com o nombreUsuario" />
+        <span class="error-text" *ngIf="loginForm.get('login')?.touched && loginForm.get('login')?.invalid">
+          Debe ingresar su correo o usuario.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" formControlName="password" placeholder="••••••••" />
+        <span class="error-text" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+          La contraseña es requerida.
+        </span>
+      </div>
+
+      <button type="submit" class="btn-hextech w-100">Ingresar a la Grieta</button>
+    </form>
+
+    <p class="redirect-text">
+      ¿No tenés cuenta? <a routerLink="/registro">Registrate acá</a>
+    </p>
+  </div>
+</div>

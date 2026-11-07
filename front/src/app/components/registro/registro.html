@@ -1,0 +1,86 @@
+<div class="auth-container">
+  <div class="auth-box">
+    <h2 class="lol-title">Registro de Invocador</h2>
+    <p class="subtitle">Sumate a la Grieta del Invocador</p>
+
+    <div *ngIf="errorMensaje" class="error-banner">{{ errorMensaje }}</div>
+    <div *ngIf="exitoMensaje" class="success-banner">{{ exitoMensaje }}</div>
+
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" formControlName="nombre" placeholder="Ej. Axel" />
+          <span class="error-text" *ngIf="registroForm.get('nombre')?.touched && registroForm.get('nombre')?.errors?.['required']">
+            El nombre es obligatorio.
+          </span>
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input type="text" formControlName="apellido" placeholder="Ej. Villalba" />
+          <span class="error-text" *ngIf="registroForm.get('apellido')?.touched && registroForm.get('apellido')?.errors?.['required']">
+            El apellido es obligatorio.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Correo Electrónico</label>
+          <input type="email" formControlName="correo" placeholder="ejemplo@lol.com" />
+          <span class="error-text" *ngIf="registroForm.get('correo')?.touched && registroForm.get('correo')?.invalid">
+            Ingrese un correo válido.
+          </span>
+        </div>
+        <div class="form-group">
+          <label>Nombre de Usuario</label>
+          <input type="text" formControlName="nombreUsuario" placeholder="Ej. Faker99" />
+          <span class="error-text" *ngIf="registroForm.get('nombreUsuario')?.touched && registroForm.get('nombreUsuario')?.invalid">
+            El usuario es obligatorio.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" formControlName="password" placeholder="Min. 8 car, 1 Mayús, 1 Nº" />
+          <span class="error-text" *ngIf="registroForm.get('password')?.touched && registroForm.get('password')?.invalid">
+            Debe tener 8 caracteres, 1 mayúscula y 1 número.
+          </span>
+        </div>
+        <div class="form-group">
+          <label>Repetir Contraseña</label>
+          <input type="password" formControlName="repetirPassword" placeholder="Repita su contraseña" />
+          <span class="error-text" *ngIf="registroForm.errors?.['noCoincide'] && registroForm.get('repetirPassword')?.touched">
+            Las contraseñas no coinciden.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha de Nacimiento</label>
+        <input type="date" formControlName="fechaNacimiento" />
+      </div>
+
+      <div class="form-group">
+        <label>Descripción breve</label>
+        <textarea formControlName="descripcion" rows="2" placeholder="Main Mid / Ahri lover..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Foto de Perfil / Avatar</label>
+        <input type="file" (change)="onFileChange($event)" accept="image/*" />
+        <div *ngIf="imagenPreview" class="avatar-preview">
+          <img [src]="imagenPreview" alt="Preview Avatar" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-hextech w-100">Registrarse</button>
+    </form>
+
+    <p class="redirect-text">
+      ¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión aquí</a>
+    </p>
+  </div>
+</div>

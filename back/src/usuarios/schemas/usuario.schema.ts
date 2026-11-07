@@ -32,7 +32,7 @@ export class Usuario {
   descripcion: string;
 
   @Prop({ default: 'https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/29.png' })
-  imagenPerfilUrl: string; // Ícono Poro por defecto de LoL
+  imagenPerfilUrl: string; // Ícono Poro por defecto de Lo  L
 
   @Prop({ type: String, enum: RolUsuario, default: RolUsuario.USUARIO })
   perfil: RolUsuario; // Atributo solicitado en la consigna
