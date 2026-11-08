@@ -4,10 +4,10 @@ import { AppModule } from '../src/app.module.js';
 export default async function handler(req: any, res: any) {
   const app = await NestFactory.create(AppModule);
   
-  // Habilitar CORS para recibir peticiones desde tu frontend en Vercel
   app.enableCors({
     origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true,
   });
 
