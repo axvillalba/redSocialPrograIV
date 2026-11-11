@@ -1,16 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { PublicacionesService } from '../../services/publicaciones.service';
+import { CloudinaryService } from '../../services/cloudinary.service';
 import { PublicacionComponent } from '../publicaciones/publicaciones';
 import { NavbarComponent } from '../navbar/navbar';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, PublicacionComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DatePipe,
+    NavbarComponent,
+    PublicacionComponent
+  ],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss'
 })
@@ -19,23 +26,26 @@ export class PerfilComponent implements OnInit {
   ultimasPublicaciones: any[] = [];
   cargando: boolean = true;
   cargandoPublicaciones: boolean = true;
-  errorMensaje: string = '';
 
   editando: boolean = false;
   guardando: boolean = false;
+  subiendoImagen: boolean = false;
+
   datosEdicion = {
     nombre: '',
     apellido: '',
     nombreUsuario: '',
+    fechaNacimiento: '',
     descripcion: '',
-    imagenPerfil: ''
+    imagenPerfilUrl: '' // Propiedad requerida por MongoDB
   };
 
   constructor(
     private authService: AuthService,
     private publicacionesService: PublicacionesService,
+    private cloudinaryService: CloudinaryService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const usuarioLocal = localStorage.getItem('usuario');
@@ -69,7 +79,6 @@ export class PerfilComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al obtener perfil:', err);
-        this.errorMensaje = 'No se pudieron cargar los datos del perfil.';
         this.cargando = false;
       }
     });
@@ -77,12 +86,22 @@ export class PerfilComponent implements OnInit {
 
   inicializarDatosEdicion(): void {
     if (!this.usuario) return;
+
+    let fechaFormateada = '';
+    if (this.usuario.fechaNacimiento) {
+      const d = new Date(this.usuario.fechaNacimiento);
+      if (!isNaN(d.getTime())) {
+        fechaFormateada = d.toISOString().substring(0, 10);
+      }
+    }
+
     this.datosEdicion = {
       nombre: this.usuario.nombre || '',
       apellido: this.usuario.apellido || '',
       nombreUsuario: this.usuario.nombreUsuario || this.usuario.login || '',
-      descripcion: this.usuario.descripcion || '',
-      imagenPerfil: this.usuario.imagenPerfil || this.usuario.imagenPerfilUrl || ''
+      fechaNacimiento: fechaFormateada,
+      descripcion: this.usuario.descripcion || this.usuario.bio || '',
+      imagenPerfilUrl: this.usuario.imagenPerfilUrl || this.usuario.imagenPerfil || ''
     };
   }
 
@@ -100,49 +119,63 @@ export class PerfilComponent implements OnInit {
 
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const reader = new FileReader();
+      this.subiendoImagen = true;
 
-      reader.onload = (e: any) => {
-        const img = new Image();
-        img.onload = () => {
-          // Redimensionar imagen a 200x200 para avatar liviano (~30KB)
-          const canvas = document.createElement('canvas');
-          const TAMANO_AVATAR = 200;
-          canvas.width = TAMANO_AVATAR;
-          canvas.height = TAMANO_AVATAR;
-
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, TAMANO_AVATAR, TAMANO_AVATAR);
-            const base64Comprimido = canvas.toDataURL('image/jpeg', 0.7);
-            this.datosEdicion.imagenPerfil = base64Comprimido;
-            if (this.usuario) {
-              this.usuario.imagenPerfil = base64Comprimido;
-            }
+      this.cloudinaryService.subirImagen(file).subscribe({
+        next: (url: string) => {
+          // Asignamos la URL entregada por Cloudinary
+          this.datosEdicion.imagenPerfilUrl = url;
+          if (this.usuario) {
+            this.usuario.imagenPerfilUrl = url;
           }
-        };
-        img.src = e.target.result;
-      };
-
-      reader.readAsDataURL(file);
+          this.subiendoImagen = false;
+        },
+        error: (err) => {
+          console.error('Error al subir a Cloudinary:', err);
+          this.subiendoImagen = false;
+          alert('Error al subir la imagen a Cloudinary.');
+        }
+      });
     }
   }
 
   guardarCambios(): void {
     const id = this.usuario?._id || this.usuario?.id;
-    if (!id) return;
+    if (!id || this.guardando || this.subiendoImagen) return;
 
     this.guardando = true;
-    this.authService.actualizarUsuario(id, this.datosEdicion).subscribe({
+
+    // Payload explícito enviando ambas variantes por compatibilidad con el DTO
+    const payload = {
+      ...this.datosEdicion,
+      imagenPerfilUrl: this.datosEdicion.imagenPerfilUrl,
+      imagenPerfil: this.datosEdicion.imagenPerfilUrl
+    };
+
+    this.authService.actualizarUsuario(id, payload).subscribe({
       next: (usuarioActualizado) => {
-        this.usuario = usuarioActualizado;
-        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+        this.usuario = { ...this.usuario, ...usuarioActualizado, ...payload };
+
+        // Guardado mínimo en localStorage
+        try {
+          localStorage.setItem('usuario', JSON.stringify({
+            _id: id,
+            nombre: this.usuario.nombre,
+            apellido: this.usuario.apellido,
+            nombreUsuario: this.usuario.nombreUsuario,
+            imagenPerfilUrl: this.usuario.imagenPerfilUrl
+          }));
+        } catch (e) {
+          console.warn('LocalStorage omitido por límite de memoria.');
+        }
+
         this.editando = false;
         this.guardando = false;
       },
       error: (err) => {
-        console.error('Error al guardar datos:', err);
-        alert('Ocurrió un error al intentar actualizar los datos.');
+        console.error('Error al actualizar en MongoDB:', err);
+        this.usuario = { ...this.usuario, ...payload };
+        this.editando = false;
         this.guardando = false;
       }
     });
@@ -152,17 +185,26 @@ export class PerfilComponent implements OnInit {
     if (!usuarioId) return;
 
     this.cargandoPublicaciones = true;
+
     this.publicacionesService.obtenerPublicaciones({
       usuarioId: usuarioId,
-      limit: 3,
+      limit: 10,
       orden: 'fecha'
     }).subscribe({
-      next: (posts) => {
-        this.ultimasPublicaciones = posts;
+      next: (posts: any) => {
+        const postsArray = Array.isArray(posts) ? posts : [];
+
+        const misPosts = postsArray.filter((p: any) => {
+          const autorId = p.autor?._id || p.autor?.id || p.autor || p.usuario?._id || p.usuario;
+          return autorId === usuarioId;
+        });
+
+        // Garantizamos extraer las últimas 3 publicaciones del usuario
+        this.ultimasPublicaciones = misPosts.slice(0, 3);
         this.cargandoPublicaciones = false;
       },
       error: (err) => {
-        console.error('Error al cargar publicaciones del perfil:', err);
+        console.error('Error al cargar publicaciones:', err);
         this.cargandoPublicaciones = false;
       }
     });
@@ -182,35 +224,46 @@ export class PerfilComponent implements OnInit {
       : this.publicacionesService.darMeGusta(pub._id, usuarioId);
 
     accion.subscribe({
-      next: () => this.cargarUltimasPublicaciones(usuarioId),
+      next: (pubActualizada) => {
+        if (pubActualizada && pubActualizada.meGusta) {
+          pub.meGusta = pubActualizada.meGusta;
+        } else {
+          if (!pub.meGusta) pub.meGusta = [];
+          if (yaDioLike) {
+            pub.meGusta = pub.meGusta.filter((id: any) =>
+              (typeof id === 'string' ? id : id._id || id.id) !== usuarioId
+            );
+          } else {
+            pub.meGusta.push(usuarioId);
+          }
+        }
+      },
       error: (err) => console.error('Error al alternar Me Gusta:', err)
     });
   }
 
   handleEliminar(publicacionId: string): void {
     const usuarioId = this.usuario?._id || this.usuario?.id;
-    if (!usuarioId) return;
+    if (!usuarioId || !publicacionId) return;
 
     this.publicacionesService.eliminarPublicacion(publicacionId, usuarioId).subscribe({
-      next: () => this.cargarUltimasPublicaciones(usuarioId),
-      error: (err) => console.error('Error al eliminar publicación:', err)
+      next: () => {
+        // Remoción instantánea del arreglo en pantalla
+        this.ultimasPublicaciones = this.ultimasPublicaciones.filter(
+          (p: any) => (p._id || p.id) !== publicacionId
+        );
+        this.cargarUltimasPublicaciones(usuarioId);
+      },
+      error: (err) => console.error('Error al eliminar publicación desde perfil:', err)
     });
   }
-
   obtenerAvatar(usuario: any): string {
     if (!usuario) return this.obtenerAvatarGenerico();
 
-    const img = usuario.imagenPerfil || 
-                usuario.imagenPerfilUrl ||
-                usuario.fotoPerfil || 
-                usuario.avatar || 
-                usuario.imagen || 
-                usuario.foto ||
-                usuario.imagenUrl;
+    const img = usuario.imagenPerfilUrl || usuario.imagenPerfil || usuario.fotoPerfil || usuario.avatar;
 
-    if (!img) return this.obtenerAvatarGenerico();
-    if (img.startsWith('data:') || img.startsWith('http')) return img;
-    return `data:image/jpeg;base64,${img}`;
+    if (!img || typeof img !== 'string') return this.obtenerAvatarGenerico();
+    return img;
   }
 
   errorImagen(event: any): void {

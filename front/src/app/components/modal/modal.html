@@ -1,0 +1,29 @@
+<div class="modal-overlay" *ngIf="mostrar" (click)="cancelar()">
+  <div class="modal-box" [ngClass]="tipo" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <h3 class="modal-title">{{ titulo }}</h3>
+    </header>
+
+    <div class="modal-body">
+      <p class="modal-mensaje">{{ mensaje }}</p>
+    </div>
+
+    <footer class="modal-footer">
+      <button 
+        type="button" 
+        class="btn-hextech-cancel" 
+        *ngIf="tipo === 'confirmacion'" 
+        (click)="cancelar()">
+        {{ textoCancelar }}
+      </button>
+
+      <button 
+        type="button" 
+        class="btn-hextech-confirm" 
+        [class.btn-danger]="tipo === 'confirmacion'"
+        (click)="confirmar()">
+        {{ textoConfirmar }}
+      </button>
+    </footer>
+  </div>
+</div>

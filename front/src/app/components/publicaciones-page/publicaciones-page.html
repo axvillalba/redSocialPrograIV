@@ -1,106 +1,130 @@
 <app-navbar></app-navbar>
 
-<main class="feed-layout">
-  <div class="feed-container">
-    
-    <!-- TARJETA CREAR POST -->
-    <section class="crear-post-card">
-      <h3 class="card-title">NUEVA PUBLICACIÓN EN LA GRIETA</h3>
-      <form (ngSubmit)="crearPublicacion()">
-        <div class="form-group">
-          <label class="form-label">TÍTULO</label>
+<main class="feed-container">
+  <!-- Formulario de Creación de Publicaciones estilo Hextech/Zaun -->
+  <section class="card-crear-post">
+    <h3 class="title-crear">NUEVA PUBLICACIÓN EN LA GRIETA</h3>
+
+    <div class="form-group">
+      <label>TÍTULO</label>
+      <input 
+        type="text" 
+        [(ngModel)]="nuevoPost.titulo" 
+        placeholder="Título de tu publicación..." 
+        [disabled]="creandoPost || subiendoImagen" 
+      />
+    </div>
+
+    <div class="form-group">
+      <label>MENSAJE</label>
+      <textarea 
+        [(ngModel)]="nuevoPost.descripcion" 
+        placeholder="¿Qué querés compartir con los invocadores?" 
+        [disabled]="creandoPost || subiendoImagen">
+      </textarea>
+    </div>
+
+    <!-- Botón personalizado para subir archivos -->
+    <div class="form-group">
+      <label>IMAGEN DEL POSTEO</label>
+      
+      <div class="upload-zone" *ngIf="!nuevoPost.imagenUrl">
+        <label class="btn-file-custom" [class.disabled]="subiendoImagen || creandoPost">
           <input 
-            type="text" 
-            [(ngModel)]="nuevoPost.titulo" 
-            name="titulo" 
-            placeholder="Título de tu publicación..." 
-            class="input-hextech" 
-            required 
+            type="file" 
+            accept="image/*" 
+            (change)="onFileSelected($event)" 
+            [disabled]="subiendoImagen || creandoPost" 
+            hidden
           />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">MENSAJE</label>
-          <textarea 
-            [(ngModel)]="nuevoPost.descripcion" 
-            name="descripcion" 
-            rows="3" 
-            placeholder="¿Qué querés compartir con los invocadores?" 
-            class="input-hextech textarea-hextech" 
-            required>
-          </textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">URL DE IMAGEN (OPCIONAL)</label>
-          <input 
-            type="text" 
-            [(ngModel)]="nuevoPost.imagenUrl" 
-            name="imagenUrl" 
-            placeholder="https://ejemplo.com/imagen.jpg" 
-            class="input-hextech" 
-          />
-        </div>
-
-        <button type="submit" class="btn-hextech-submit">PUBLICAR</button>
-      </form>
-    </section>
-
-    <!-- BARRA DE CONTROLES: ORDENAMIENTO Y PAGINACIÓN -->
-    <section class="controles-bar">
-      <div class="orden-group">
-        <span class="label-control">ORDENAR POR:</span>
-        <div class="button-toggle-group">
-          <button 
-            type="button"
-            class="btn-ctrl"
-            [class.activo]="ordenSeleccionado === 'fecha'" 
-            (click)="cambiarOrden('fecha')">
-            MÁS RECIENTES
-          </button>
-          <button 
-            type="button"
-            class="btn-ctrl"
-            [class.activo]="ordenSeleccionado === 'meGusta'" 
-            (click)="cambiarOrden('meGusta')">
-            MÁS ME GUSTA
-          </button>
-        </div>
+          <span *ngIf="!subiendoImagen">📁 SELECCIONAR IMAGEN</span>
+          <span *ngIf="subiendoImagen">⏳ SUBIENDO A CLOUDINARY...</span>
+        </label>
       </div>
 
-      <div class="paginacion-group">
-        <button 
-          type="button"
-          class="btn-ctrl btn-pag"
-          (click)="paginaAnterior()" 
-          [disabled]="offset === 0">
-          ◀ ANTERIOR
-        </button>
-        <span class="pag-actual">PÁG. {{ paginaActual }}</span>
-        <button 
-          type="button"
-          class="btn-ctrl btn-pag"
-          (click)="paginaSiguiente()" 
-          [disabled]="publicaciones.length < limit">
-          SIGUIENTE ▶
-        </button>
+      <!-- Previsualización -->
+      <div class="preview-box" *ngIf="nuevoPost.imagenUrl">
+        <img [src]="nuevoPost.imagenUrl" alt="Previsualización" />
+        <button type="button" class="btn-delete-preview" (click)="quitarImagen()">❌ QUITAR FOTO</button>
       </div>
-    </section>
+    </div>
 
-    <!-- FEED DE PUBLICACIONES -->
-    <section class="lista-feed">
-      <app-publicacion
-        *ngFor="let pub of publicaciones"
-        [publicacion]="pub"
-        [usuarioActualId]="usuarioActualId"
-        (meGustaToggled)="handleLikeToggle(pub)"
-        (eliminarSolicitado)="handleEliminar($event)">
-      </app-publicacion>
+    <button 
+      type="button" 
+      class="btn-hextech-submit" 
+      (click)="crearPublicacion()" 
+      [disabled]="creandoPost || subiendoImagen">
+      <span *ngIf="!creandoPost">PUBLICAR</span>
+      <span *ngIf="creandoPost">PUBLICANDO... ⏳</span>
+    </button>
+  </section>
 
-      <div *ngIf="publicaciones.length === 0" class="sin-publicaciones">
-        No hay publicaciones disponibles en esta sección.
-      </div>
-    </section>
+  <!-- Filtro por Orden arriba del Feed -->
+  <section class="orden-bar">
+    <span class="lbl-orden">ORDENAR POR:</span>
+    <button 
+      type="button" 
+      class="btn-filtro" 
+      [class.activo]="ordenSeleccionado === 'fecha'" 
+      (click)="cambiarOrden('fecha')">
+      MÁS RECIENTES
+    </button>
+    <button 
+      type="button" 
+      class="btn-filtro" 
+      [class.activo]="ordenSeleccionado === 'meGusta'" 
+      (click)="cambiarOrden('meGusta')">
+      MÁS ME GUSTA
+    </button>
+  </section>
 
+  <!-- Spinner central sólo para carga de feed o cambio de página/orden -->
+  <div class="spinner-container" *ngIf="cargandoFeed">
+    <div class="spinner-hextech"></div>
+    <p>CARGANDO PUBLICACIONES...</p>
   </div>
+
+  <!-- Lista de publicaciones -->
+  <section class="publicaciones-list" *ngIf="!cargandoFeed">
+    <app-publicacion
+      *ngFor="let pub of publicaciones"
+      [publicacion]="pub"
+      [usuarioActualId]="usuarioActualId"
+      [procesandoLike]="idsProcesandoLike.has(pub._id)"
+      (meGustaToggled)="handleLikeToggle(pub)"
+      (eliminarSolicitado)="handleEliminar($event)">
+    </app-publicacion>
+
+    <div class="empty-feed" *ngIf="publicaciones.length === 0">
+      <p>No hay publicaciones en la Grieta actualmente.</p>
+    </div>
+  </section>
+
+  <!-- Paginación trasladada al FINAL de la página -->
+  <section class="paginacion-bar-bottom" *ngIf="!cargandoFeed && publicaciones.length > 0">
+    <button 
+      type="button" 
+      class="btn-pag" 
+      (click)="paginaAnterior()" 
+      [disabled]="offset === 0">
+      ◀ ANTERIOR
+    </button>
+    <span class="num-pag">PÁG. {{ paginaActual }}</span>
+    <button 
+      type="button" 
+      class="btn-pag" 
+      (click)="paginaSiguiente()" 
+      [disabled]="publicaciones.length < limit">
+      SIGUIENTE ▶
+    </button>
+  </section>
 </main>
+
+<app-modal
+  [mostrar]="modalState.mostrar"
+  [titulo]="modalState.titulo"
+  [mensaje]="modalState.mensaje"
+  [tipo]="modalState.tipo"
+  (alConfirmar)="cerrarModal()"
+  (alCancelar)="cerrarModal()">
+</app-modal>

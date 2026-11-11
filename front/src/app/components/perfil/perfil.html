@@ -1,116 +1,147 @@
-<!-- NAVBAR SUPERIOR REUTILIZABLE -->
 <app-navbar></app-navbar>
 
-<div class="perfil-layout" *ngIf="usuario">
-
-  <!-- COLUMNA IZQUIERDA: TARJETA DE USUARIO -->
-  <div class="perfil-card">
-    <div class="avatar-wrapper">
-      <img [src]="obtenerAvatar(usuario)" (error)="errorImagen($event)" alt="Avatar Invocador" class="avatar-img" />
-    </div>
-
-    <!-- VISTA MODO LECTURA -->
-    <ng-container *ngIf="!editando">
-      <h2 class="usuario-nombre">{{ usuario.nombre }} {{ usuario.apellido }}</h2>
-      <p class="usuario-username">@{{ usuario.nombreUsuario || usuario.login }}</p>
-      <span class="badge-rol">INVOCADOR</span>
-
-      <div class="info-grid">
-        <div class="info-group">
-          <label>CORREO ELECTRÓNICO</label>
-          <div class="info-box">{{ usuario.correo || usuario.email }}</div>
+<main class="perfil-container" *ngIf="usuario">
+  <div class="perfil-grid-layout">
+    
+    <!-- COLUMNA IZQUIERDA -->
+    <aside class="columna-perfil">
+      <!-- Modo Lectura -->
+      <section class="card-perfil" *ngIf="!editando">
+        <div class="avatar-wrapper">
+          <img 
+            [src]="obtenerAvatar(usuario)" 
+            (error)="errorImagen($event)" 
+            alt="Foto de perfil" 
+            class="avatar-img" 
+          />
         </div>
-        <div class="info-group">
+
+        <h2 class="nombre-usuario">{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+        <span class="username-tag">@{{ usuario.nombreUsuario || usuario.login }}</span>
+        <span class="rol-badge">INVOCADOR</span>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>CORREO ELECTRÓNICO</label>
+            <p>{{ usuario.correo }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>FECHA DE NACIMIENTO</label>
+<p>{{ (usuario.fechaNacimiento | date:'dd/MM/yyyy':'UTC') || 'Sin especificar' }}</p>          </div>
+        </div>
+
+        <div class="bio-section" *ngIf="usuario.descripcion || usuario.bio">
+          <label>DESCRIPCIÓN / BIO</label>
+          <p class="bio-texto">{{ usuario.descripcion || usuario.bio }}</p>
+        </div>
+
+        <button type="button" class="btn-hextech-submit" (click)="activarEdicion()">
+          EDITAR PERFIL
+        </button>
+      </section>
+
+      <!-- Modo Edición -->
+      <section class="card-perfil" *ngIf="editando">
+        <div class="avatar-wrapper">
+          <img 
+            [src]="datosEdicion.imagenPerfilUrl || obtenerAvatar(usuario)" 
+            (error)="errorImagen($event)" 
+            alt="Previsualización Avatar" 
+            class="avatar-img" 
+          />
+        </div>
+
+        <h3 class="title-editar">EDITAR DATOS DE INVOCADOR</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>NOMBRE</label>
+            <input type="text" [(ngModel)]="datosEdicion.nombre" [disabled]="guardando || subiendoImagen" />
+          </div>
+
+          <div class="form-group">
+            <label>APELLIDO</label>
+            <input type="text" [(ngModel)]="datosEdicion.apellido" [disabled]="guardando || subiendoImagen" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>NOMBRE DE USUARIO</label>
+          <input type="text" [(ngModel)]="datosEdicion.nombreUsuario" [disabled]="guardando || subiendoImagen" />
+        </div>
+
+        <div class="form-group">
           <label>FECHA DE NACIMIENTO</label>
-          <div class="info-box">{{ usuario.fechaNacimiento }}</div>
-        </div>
-      </div>
-
-      <div class="info-group bio-group">
-        <label>DESCRIPCIÓN / BIO</label>
-        <div class="info-box bio-box"><em>{{ usuario.descripcion || 'Sin descripción' }}</em></div>
-      </div>
-
-      <div class="acciones-container">
-        <button type="button" class="btn-hextech" (click)="activarEdicion()">EDITAR PERFIL</button>
-      </div>
-    </ng-container>
-
-    <!-- FORMULARIO MODO EDICIÓN -->
-    <ng-container *ngIf="editando">
-      <h3 class="titulo-edicion">EDITAR DATOS DE INVOCADOR</h3>
-
-      <div class="form-grid">
-        <div class="info-group">
-          <label>NOMBRE</label>
-          <input type="text" [(ngModel)]="datosEdicion.nombre" class="input-hextech" />
+          <input type="date" [(ngModel)]="datosEdicion.fechaNacimiento" [disabled]="guardando || subiendoImagen" />
         </div>
 
-        <div class="info-group">
-          <label>APELLIDO</label>
-          <input type="text" [(ngModel)]="datosEdicion.apellido" class="input-hextech" />
-        </div>
-      </div>
-
-      <div class="info-group">
-        <label>NOMBRE DE USUARIO</label>
-        <input type="text" [(ngModel)]="datosEdicion.nombreUsuario" class="input-hextech" />
-      </div>
-
-      <div class="info-group">
-        <label>FOTO DE PERFIL / AVATAR</label>
-
-        <div class="file-picker-wrapper">
-          <!-- Input oculto controlado por la etiqueta -->
-          <input type="file" id="avatar-file-input" accept="image/*" (change)="onFileSelected($event)"
-            class="input-file-hidden" />
-
-          <label for="avatar-file-input" class="btn-hextech btn-upload">
-            📁 ELEGIR IMAGEN DEL ORDENADOR
-          </label>
+        <div class="form-group">
+          <label>FOTO DE PERFIL / AVATAR</label>
+          <div class="upload-zone">
+            <label class="btn-file-custom" [class.disabled]="subiendoImagen || guardando">
+              <input 
+                type="file" 
+                accept="image/*" 
+                (change)="onFileSelected($event)" 
+                [disabled]="subiendoImagen || guardando" 
+                hidden
+              />
+              <span *ngIf="!subiendoImagen">📁 ELEGIR IMAGEN DEL ORDENADOR</span>
+              <span *ngIf="subiendoImagen">⏳ SUBIENDO A CLOUDINARY...</span>
+            </label>
+          </div>
         </div>
 
-        <span class="separador-o">— O pegá una URL directa —</span>
+        <div class="form-group">
+          <label>DESCRIPCIÓN / BIO</label>
+          <textarea [(ngModel)]="datosEdicion.descripcion" [disabled]="guardando || subiendoImagen"></textarea>
+        </div>
 
-        <input type="text" [(ngModel)]="datosEdicion.imagenPerfil" placeholder="https://ejemplo.com/avatar.jpg"
-          class="input-hextech" />
+        <div class="btn-actions">
+          <button 
+            type="button" 
+            class="btn-hextech-submit" 
+            (click)="guardarCambios()" 
+            [disabled]="guardando || subiendoImagen">
+            <span *ngIf="!guardando">GUARDAR CAMBIOS</span>
+            <span *ngIf="guardando">GUARDANDO... ⏳</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="btn-hextech-cancel" 
+            (click)="cancelarEdicion()" 
+            [disabled]="guardando || subiendoImagen">
+            CANCELAR
+          </button>
+        </div>
+      </section>
+    </aside>
+
+    <!-- COLUMNA DERECHA -->
+    <section class="columna-publicaciones">
+      <h3 class="title-seccion">MIS ÚLTIMAS PUBLICACIONES</h3>
+
+      <div class="spinner-container" *ngIf="cargandoPublicaciones">
+        <div class="spinner-hextech"></div>
+        <p>CARGANDO POSTEOS...</p>
       </div>
 
-      <div class="info-group bio-group">
-        <label>DESCRIPCIÓN / BIO</label>
-        <textarea [(ngModel)]="datosEdicion.descripcion" rows="3" class="input-hextech"></textarea>
-      </div>
+      <div class="publicaciones-list" *ngIf="!cargandoPublicaciones">
+        <app-publicacion
+          *ngFor="let pub of ultimasPublicaciones"
+          [publicacion]="pub"
+          [usuarioActualId]="usuario._id || usuario.id"
+          (meGustaToggled)="handleLikeToggle(pub)"
+          (eliminarSolicitado)="handleEliminar($event)">
+        </app-publicacion>
 
-      <div class="acciones-container">
-        <button type="button" class="btn-hextech btn-save" (click)="guardarCambios()" [disabled]="guardando">
-          {{ guardando ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
-        </button>
-        <button type="button" class="btn-hextech btn-cancel" (click)="cancelarEdicion()" [disabled]="guardando">
-          CANCELAR
-        </button>
+        <div class="empty-feed" *ngIf="ultimasPublicaciones.length === 0">
+          <p>Aún no realizaste ninguna publicación en la Grieta.</p>
+        </div>
       </div>
-    </ng-container>
+    </section>
 
   </div>
-
-  <!-- COLUMNA DERECHA: ÚLTIMAS PUBLICACIONES -->
-  <section class="seccion-mis-publicaciones">
-    <h3 class="titulo-seccion">MIS ÚLTIMAS PUBLICACIONES (MÁX. 3)</h3>
-
-    <div *ngIf="cargandoPublicaciones" class="estado-cargando">
-      Cargando publicaciones...
-    </div>
-
-    <div *ngIf="!cargandoPublicaciones && ultimasPublicaciones.length === 0" class="sin-publicaciones">
-      Aún no has realizado ninguna publicación en la Grieta.
-    </div>
-
-    <div class="lista-publicaciones" *ngIf="!cargandoPublicaciones && ultimasPublicaciones.length > 0">
-      <app-publicacion *ngFor="let pub of ultimasPublicaciones" [publicacion]="pub"
-        [usuarioActualId]="usuario._id || usuario.id" (meGustaToggled)="handleLikeToggle(pub)"
-        (eliminarSolicitado)="handleEliminar($event)">
-      </app-publicacion>
-    </div>
-  </section>
-
-</div>
+</main>

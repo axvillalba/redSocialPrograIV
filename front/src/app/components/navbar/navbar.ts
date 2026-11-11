@@ -30,32 +30,22 @@ export class NavbarComponent implements OnInit {
   }
 
   cerrarSesion(): void {
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('token');
+    localStorage.clear();
     this.router.navigate(['/login']);
   }
 
   obtenerAvatar(): string {
     if (!this.usuario) return this.avatarGenerico();
 
-    // Mapeo exhaustivo de nombres de propiedad posibles
-    const img = this.usuario.imagenPerfil ||
-                this.usuario.imagenPerfilUrl ||
-                this.usuario.fotoPerfil ||
+    // Mapeo exhaustivo para garantizar lectura tras el Login
+    const img = this.usuario.imagenPerfilUrl || 
+                this.usuario.imagenPerfil || 
+                this.usuario.fotoPerfil || 
                 this.usuario.avatar ||
-                this.usuario.imagen ||
-                this.usuario.foto ||
                 this.usuario.imagenUrl;
 
-    if (!img) return this.avatarGenerico();
-
-    // Si ya es URL remota o Base64 con encabezado
-    if (img.startsWith('data:') || img.startsWith('http')) {
-      return img;
-    }
-
-    // Si es Base64 puro almacenado en MongoDB
-    return `data:image/jpeg;base64,${img}`;
+    if (!img || typeof img !== 'string') return this.avatarGenerico();
+    return img;
   }
 
   errorImagen(event: any): void {
@@ -64,6 +54,6 @@ export class NavbarComponent implements OnInit {
 
   private avatarGenerico(): string {
     const nombre = `${this.usuario?.nombre || 'Invocador'}+${this.usuario?.apellido || ''}`;
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=091428&color=c8aa6e&size=128`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=091428&color=c8aa6e&size=64`;
   }
 }

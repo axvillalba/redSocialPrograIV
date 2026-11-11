@@ -1,160 +1,237 @@
-.feed-layout {
-  min-height: 100vh;
-  background-color: #030a12;
-  padding-top: 90px;
-  padding-bottom: 3rem;
-  box-sizing: border-box;
+.feed-container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 16px;
 }
 
-.feed-container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 1rem;
+// Estructura idéntica a la imagen de referencia
+.card-crear-post {
+  background: #030a16;
+  border: 1px solid #785a28;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(120, 90, 40, 0.2);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 24px;
 
-  .crear-post-card {
-    background: #091428;
-    border: 1px solid #c8aa6e;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), 0 0 10px rgba(200, 170, 110, 0.2);
-    padding: 1.8rem;
-    margin-bottom: 2rem;
-    border-radius: 4px;
+  .title-crear {
+    color: #c8aa6e;
+    font-family: 'Cinzel', serif, system-ui;
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(120, 90, 40, 0.4);
+    padding-bottom: 10px;
+    text-transform: uppercase;
+  }
 
-    .card-title {
-      color: #c8aa6e;
-      font-size: 1.1rem;
-      letter-spacing: 1.5px;
-      margin-bottom: 1.2rem;
-      text-transform: uppercase;
-      border-bottom: 1px solid rgba(200, 170, 110, 0.25);
-      padding-bottom: 0.5rem;
-    }
+  .form-group {
+    margin-bottom: 18px;
 
-    .form-group {
-      margin-bottom: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-
-      .form-label {
-        font-size: 0.7rem;
-        color: #a09b8c;
-        letter-spacing: 1px;
-        font-weight: bold;
-      }
-
-      .input-hextech {
-        width: 100%;
-        background: #040d1a;
-        border: 1px solid #1e282d;
-        color: #f0e6d2;
-        padding: 0.75rem 0.9rem;
-        font-size: 0.9rem;
-        border-radius: 2px;
-        box-sizing: border-box;
-
-        &:focus {
-          outline: none;
-          border-color: #0ac8b9;
-          box-shadow: 0 0 8px rgba(10, 200, 185, 0.3);
-        }
-      }
-
-      .textarea-hextech {
-        resize: vertical;
-        min-height: 80px;
-      }
-    }
-
-    .btn-hextech-submit {
-      width: 100%;
-      background: transparent;
-      border: 1px solid #c8aa6e;
-      color: #c8aa6e;
-      padding: 0.8rem;
+    label {
+      display: block;
+      color: #cdbe91;
+      font-size: 0.75rem;
       font-weight: bold;
-      font-size: 0.9rem;
-      letter-spacing: 1.5px;
-      cursor: pointer;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      background: #010a13;
+      border: 1px solid #1e2b3c;
+      color: #f0f6f8;
+      padding: 12px 14px;
       border-radius: 2px;
-      transition: all 0.2s ease;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 0.9rem;
 
-      &:hover {
-        background: #c8aa6e;
-        color: #091428;
-        box-shadow: 0 0 12px rgba(200, 170, 110, 0.4);
+      &::placeholder {
+        color: #465364;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #0ac8b9;
+        box-shadow: 0 0 6px rgba(10, 200, 185, 0.3);
       }
     }
-  }
 
-  .controles-bar {
-    display: flex;
-    justify-content: space-between;
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+  }
+}
+
+// Botón "SELECCIONAR IMAGEN" idéntico a la imagen (borde cian)
+.upload-zone {
+  display: flex;
+
+  .btn-file-custom {
+    background: #05141c;
+    border: 1px solid #00cfc8;
+    color: #cdbe91;
+    padding: 8px 16px;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
-    background: #091428;
-    border: 1px solid #1e282d;
-    padding: 0.8rem 1.2rem;
-    margin-bottom: 1.8rem;
-    border-radius: 4px;
-    flex-wrap: wrap;
-    gap: 1rem;
 
-    .orden-group, .paginacion-group {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
+    &:hover:not(.disabled) {
+      background: #00cfc8;
+      color: #010a13;
+      box-shadow: 0 0 10px rgba(0, 207, 200, 0.4);
+    }
 
-      .label-control {
-        color: #a09b8c;
-        font-size: 0.75rem;
-        font-weight: bold;
-        letter-spacing: 1px;
-      }
-
-      .button-toggle-group {
-        display: flex;
-        gap: 0.4rem;
-      }
-
-     .btn-ctrl {
-        background: #040d1a;
-        border: 1px solid #1e282d;
-        color: #a09b8c;
-        padding: 0.45rem 0.85rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        border-radius: 2px;
-        transition: all 0.2s ease;
-
-        &:hover:not(:disabled) {
-          border-color: #c8aa6e;
-          color: #c8aa6e;
-        }
-
-        &.activo {
-          border-color: #0ac8b9;
-          color: #0ac8b9;
-          background: rgba(10, 200, 185, 0.1);
-          box-shadow: 0 0 8px rgba(10, 200, 185, 0.3);
-        }
-
-        &:disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
-        }
-      }
-  }
-
-  .lista-feed {
-    .sin-publicaciones {
-      text-align: center;
-      padding: 3rem;
-      background: #091428;
-      border: 1px dashed #1e282d;
-      color: #a09b8c;
-      border-radius: 4px;
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
+}
+
+.preview-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+
+  img {
+    max-width: 100%;
+    max-height: 220px;
+    border: 1px solid #785a28;
+    border-radius: 2px;
+  }
+
+  .btn-delete-preview {
+    background: transparent;
+    border: 1px solid #ff4655;
+    color: #ff4655;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 2px;
+
+    &:hover {
+      background: #ff4655;
+      color: #fff;
+    }
+  }
+}
+
+// Botón "PUBLICAR" estilo Hextech
+.btn-hextech-submit {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #c8aa6e;
+  color: #c8aa6e;
+  padding: 12px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+
+  &:hover:not([disabled]) {
+    background: rgba(200, 170, 110, 0.1);
+    box-shadow: 0 0 12px rgba(200, 170, 110, 0.4);
+    color: #f0e6d2;
+  }
+
+  &[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// Barra de Filtro de Ordenamiento
+.orden-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .lbl-orden {
+    color: #cdbe91;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  .btn-filtro {
+    background: #030a16;
+    border: 1px solid #1e2b3c;
+    color: #a09b8c;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+
+    &.activo {
+      border-color: #00cfc8;
+      background: #00252b;
+      color: #00cfc8;
+      box-shadow: 0 0 8px rgba(0, 207, 200, 0.3);
+    }
+
+    &:hover:not(.activo) {
+      border-color: #785a28;
+      color: #cdbe91;
+    }
+  }
+}
+
+// Paginación ubicada al final del feed
+.paginacion-bar-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(120, 90, 40, 0.3);
+
+  .num-pag {
+    color: #c8aa6e;
+    font-weight: bold;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+  }
+
+  .btn-pag {
+    background: #030a16;
+    border: 1px solid #785a28;
+    color: #cdbe91;
+    padding: 8px 18px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+
+    &:hover:not([disabled]) {
+      border-color: #00cfc8;
+      color: #00cfc8;
+      box-shadow: 0 0 8px rgba(0, 207, 200, 0.3);
+    }
+
+    &[disabled] {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
   }
 }

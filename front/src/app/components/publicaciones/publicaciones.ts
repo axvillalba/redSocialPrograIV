@@ -1,19 +1,24 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ModalComponent } from '../modal/modal';
+import { TiempoHacePipe } from '../../pipes/tiempo-hace.pipe';
 
 @Component({
   selector: 'app-publicacion',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalComponent, TiempoHacePipe],
   templateUrl: './publicaciones.html',
   styleUrls: ['./publicaciones.scss'],
 })
 export class PublicacionComponent {
   @Input() publicacion!: any;
   @Input() usuarioActualId!: string;
+  @Input() procesandoLike: boolean = false;
 
   @Output() meGustaToggled = new EventEmitter<void>();
   @Output() eliminarSolicitado = new EventEmitter<string>();
+
+  mostrarModalEliminar: boolean = false;
 
   get usuarioYaDioLike(): boolean {
     if (!this.publicacion?.meGusta || !this.usuarioActualId) return false;
@@ -32,12 +37,24 @@ export class PublicacionComponent {
   }
 
   toggleLike(): void {
+    if (this.procesandoLike) return;
     this.meGustaToggled.emit();
   }
 
-  eliminar(): void {
-    if (confirm('¿Deseas eliminar esta publicación de la Grieta?')) {
-      this.eliminarSolicitado.emit(this.publicacion._id);
+  solicitarEliminar(): void {
+    this.mostrarModalEliminar = true;
+  }
+
+  confirmarEliminacion(): void {
+    this.mostrarModalEliminar = false;
+    // Resolución defensiva de _id / id
+    const pubId = this.publicacion?._id || this.publicacion?.id;
+    if (pubId) {
+      this.eliminarSolicitado.emit(pubId);
     }
+  }
+
+  cancelarEliminacion(): void {
+    this.mostrarModalEliminar = false;
   }
 }
