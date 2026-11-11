@@ -147,4 +147,4 @@ El proyecto está preparado para desplegarse como dos servicios independientes d
 | `POST` | `/autenticacion/registro` | Registro de usuario | Objeto usuario completo | `201 Created` |
 | `POST` | `/autenticacion/login` | Inicio de sesión | `{ "login": "...", "password": "..." }` | `200 OK` (Objeto usuario) |
 | `GET` | `/publicaciones` | Obtener publicaciones | N/A | `200 OK` (Arreglo `[]`) |
-| `POST` | `/publicaciones` | Crear publicación | `{ "titulo": "...", "mensaje": "...", "autor": "ID" }` | `201 Created` |
+| `POST` | `/publicaciones` | Crear publicación | `{ "titulo": "...", "mensaje": "...", "autor": "ID" }` | `201 Created` |   
