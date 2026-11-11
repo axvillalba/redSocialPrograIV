@@ -1,117 +1,95 @@
-/* You can add global styles to this file, and also import other style files */
-/* Importación de fuentes: Cinzel (títulos estilo LoL) e Inter (lectura) */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700;800&family=Rajdhani:wght@500;600;700&family=Permanent+Marker&display=swap');
 
+// --- VARIABLES HEXTECH & ZAUN ---
 :root {
-  /* Paleta Hextech / Dark Mode League of Legends */
-  --bg-dark-primary: #09141e;
-  --bg-dark-secondary: #111823;
-  --bg-surface: #1e2328;
+  --hextech-gold: #c8aa6e;
+  --hextech-gold-bright: #f0e6d2;
+  --hextech-gold-dark: #785a28;
+  --hextech-cyan: #00cfc8;
+  --hextech-cyan-glow: rgba(0, 207, 200, 0.45);
+  
+  --zaun-pink: #ff0055;
+  --zaun-pink-glow: rgba(255, 0, 85, 0.55);
+  --zaun-green: #00ff66;
 
-  --gold-main: #c8aa6e;
-  --gold-light: #f0e6d2;
-  --gold-dark: #785a28;
-
-  --text-primary: #f0e6d2;
-  --text-secondary: #a09b8c;
-
-  --border-gold: #c8aa6e;
-  --border-dark: #30281e;
-
-  --error-burgundy: #a32525;
-  --error-bright: #e84057;
-  --success-green: #00be8a;
+  --bg-deep-space: #010a13;
+  --bg-card-dark: rgba(3, 10, 22, 0.85);
+  --border-subtle: #1e2b3c;
+  
+  --font-title: 'Cinzel Decorative', 'Cinzel', serif;
+  --font-subtitle: 'Cinzel', serif;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-graffiti: 'Permanent Marker', cursive;
 }
 
-* {
-  box-sizing: border-box;
+// --- RESET GENERAL & FONDO ARCANE ---
+html, body {
   margin: 0;
   padding: 0;
-}
-
-body {
-  background-color: var(--bg-dark-primary);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
   min-height: 100vh;
+  background-color: #010a13;
+  
+  background-image: 
+    linear-gradient(180deg, rgba(1, 10, 19, 0.65) 0%, rgba(1, 10, 19, 0.85) 100%),
+    url('./assets/bg-arcane.png');
+    
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: #f0f6f8;
+  font-family: var(--font-body);
+  transition: background-position 0.4s ease-in-out;
+}
+// --- FORZAR TRANSPARENCIA EN CONTENEDORES ---
+.card-publicacion, 
+.nueva-publicacion-card, 
+.card-perfil, 
+.login-card, 
+.registro-card,
+.publicaciones-container {
+  background: rgba(3, 10, 22, 0.82) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* Tipografía de títulos */
-h1, h2, h3, h4, .lol-title {
-  font-family: 'Cinzel', serif;
-  color: var(--gold-main);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-/* Scrollbar estilo cliente de LoL */
+// --- BARRA DE NAVEGACIÓN PERSONALIZADA ---
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark-primary);
+  background: var(--bg-deep-space);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--gold-dark);
-  border: 1px solid var(--gold-main);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-main);
-}
-
-/* Botón base Hextech */
-.btn-hextech {
-  background: linear-gradient(180deg, #1e2328 0%, #0a1428 100%);
-  border: 1px solid var(--gold-main);
-  color: var(--gold-light);
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s ease-in-out;
-
+  background: var(--hextech-gold-dark);
+  border-radius: 2px;
   &:hover {
-    background: linear-gradient(180deg, var(--gold-dark) 0%, #1e2328 100%);
-    box-shadow: 0 0 10px rgba(200, 170, 110, 0.4);
-    color: #ffffff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    border-color: var(--border-dark);
+    background: var(--hextech-gold);
+    box-shadow: 0 0 8px var(--hextech-gold);
   }
 }
 
-/* Estilo base para campos de formularios */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="date"],
-textarea {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-dark);
-  color: var(--text-primary);
-  padding: 0.75rem 1rem;
-  font-family: 'Inter', sans-serif;
-  outline: none;
-  width: 100%;
-  transition: border-color 0.2s;
-
-  &:focus {
-    border-color: var(--gold-main);
-    box-shadow: 0 0 5px rgba(200, 170, 110, 0.3);
-  }
-
-  &.is-invalid {
-    border-color: var(--error-bright);
-  }
+// --- ANIMACIONES GLOBALES ---
+@keyframes hextechPulse {
+  0% { box-shadow: 0 0 10px var(--hextech-cyan-glow); }
+  50% { box-shadow: 0 0 22px rgba(0, 207, 200, 0.75); }
+  100% { box-shadow: 0 0 10px var(--hextech-cyan-glow); }
 }
 
-/* Mensajes de error de validación */
-.error-text {
-  color: var(--error-bright);
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+@keyframes jinxGlow {
+  0% { text-shadow: 0 0 4px var(--zaun-pink-glow); }
+  50% { text-shadow: 0 0 14px var(--zaun-pink), 0 0 20px var(--zaun-pink); }
+  100% { text-shadow: 0 0 4px var(--zaun-pink-glow); }
+}
+
+// --- UTILIDADES ---
+.text-gold {
+  color: var(--hextech-gold);
+  font-family: var(--font-title);
+  letter-spacing: 1.5px;
+}
+
+.text-jinx {
+  color: var(--zaun-pink);
+  font-family: var(--font-graffiti);
+  animation: jinxGlow 3s infinite ease-in-out;
 }

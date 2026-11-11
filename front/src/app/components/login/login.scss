@@ -1,1 +1,174 @@
-@use '../registro/registro' as *;
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.login-card {
+  background: #030a16;
+  border: 1px solid #785a28;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(120, 90, 40, 0.25);
+  border-radius: 4px;
+  width: 100%;
+  max-width: 440px;
+  padding: 36px 32px;
+  box-sizing: border-box;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c8aa6e, transparent);
+  }
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 28px;
+
+  .header-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .title {
+    color: #c8aa6e;
+    font-family: 'Cinzel', serif, system-ui;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    color: #a09b8c;
+    font-size: 0.85rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+
+  label {
+    color: #cdbe91;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  input {
+    width: 100%;
+    background: #010a13;
+    border: 1px solid #1e2b3c;
+    color: #f0f6f8;
+    padding: 12px 14px;
+    border-radius: 2px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+
+    &::placeholder {
+      color: #4a5a6e;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #00cfc8;
+      box-shadow: 0 0 8px rgba(0, 207, 200, 0.35);
+    }
+
+    &.is-invalid {
+      border-color: #ff4655;
+    }
+  }
+
+  .error-text {
+    color: #ff4655;
+    font-size: 0.75rem;
+    margin-top: 4px;
+  }
+}
+
+.alert-error {
+  background: rgba(255, 70, 85, 0.1);
+  border: 1px solid #ff4655;
+  color: #ff4655;
+  padding: 10px 12px;
+  border-radius: 2px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.btn-hextech-submit {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #c8aa6e;
+  color: #c8aa6e;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  margin-top: 6px;
+
+  &:hover:not([disabled]) {
+    background: rgba(200, 170, 110, 0.15);
+    color: #f0e6d2;
+    box-shadow: 0 0 14px rgba(200, 170, 110, 0.4);
+  }
+
+  &[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: #4a5a6e;
+    color: #4a5a6e;
+  }
+}
+
+.card-footer {
+  margin-top: 24px;
+  text-align: center;
+  border-top: 1px solid rgba(120, 90, 40, 0.25);
+  padding-top: 16px;
+
+  p {
+    color: #a09b8c;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .link-hextech {
+    color: #00cfc8;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #f0e6d2;
+      text-shadow: 0 0 8px rgba(0, 207, 200, 0.5);
+      text-decoration: underline;
+    }
+  }
+}

@@ -34,7 +34,7 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (res: any) => {
-        // 1. Guardar el token si el backend lo retorna
+        // 1. Guardar token si el backend lo envía
         if (res.token) {
           localStorage.setItem('token', res.token);
         }
@@ -42,7 +42,7 @@ export class LoginComponent {
         const usuarioServidor = res.usuario || res;
         const idUsuario = usuarioServidor._id || usuarioServidor.id;
 
-        // 2. Crear un objeto ultra-liviano libre de imágenes Base64
+        // 2. Incluir la URL de Cloudinary y fechaNacimiento
         const usuarioLimpio = {
           _id: idUsuario,
           id: idUsuario,
@@ -50,10 +50,12 @@ export class LoginComponent {
           apellido: usuarioServidor.apellido || '',
           nombreUsuario: usuarioServidor.nombreUsuario || usuarioServidor.login || '',
           correo: usuarioServidor.correo || usuarioServidor.email || '',
+          fechaNacimiento: usuarioServidor.fechaNacimiento || '',
+          imagenPerfilUrl: usuarioServidor.imagenPerfilUrl || usuarioServidor.imagenPerfil || '',
           rol: usuarioServidor.rol || 'USUARIO'
         };
 
-        // 3. Guardar limpiando cualquier basura previa
+        // 3. Persistir en localStorage
         try {
           localStorage.removeItem('usuario');
           localStorage.setItem('usuario', JSON.stringify(usuarioLimpio));

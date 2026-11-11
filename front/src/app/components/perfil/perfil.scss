@@ -1,252 +1,317 @@
-.perfil-layout {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 2.5rem;
-  padding: 90px 2.5rem 2.5rem 2.5rem;
+:host {
+  display: block;
   min-height: 100vh;
-  background-color: #030a12;
-  color: #f0e6d2;
+}
+
+// Forzamos el fondo hacia la mitad inferior (Vi y Zaun)
+::ng-deep body {
+  background-position: center bottom !important;
+}
+
+.perfil-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 30px 20px;
   box-sizing: border-box;
+}
 
-  @media (max-width: 992px) {
-    flex-direction: column;
-    align-items: center;
+// Grilla Principal a 2 Columnas
+.perfil-grid-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 28px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
   }
 }
 
-.perfil-card {
-  width: 100%;
-  max-width: 440px;
-  background: #091428;
-  border: 1px solid #c8aa6e;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7), 0 0 10px rgba(200, 170, 110, 0.2);
-  padding: 2rem;
+// Tarjeta de Perfil (Columna Izquierda)
+.card-perfil {
+  background: rgba(3, 10, 22, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid #785a28;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(120, 90, 40, 0.2);
   border-radius: 4px;
+  padding: 28px 24px;
+  box-sizing: border-box;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c8aa6e, transparent);
+  }
+}
+
+.avatar-wrapper {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 16px auto;
+  border-radius: 50%;
+  border: 2px solid #00cfc8;
+  box-shadow: 0 0 18px rgba(0, 207, 200, 0.45);
+  overflow: hidden;
+  background: #010a13;
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.nombre-usuario {
+  color: #f0e6d2;
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  font-size: 1.3rem;
   text-align: center;
+  margin: 0 0 4px 0;
+  letter-spacing: 1px;
+}
 
-  .avatar-wrapper {
-    margin: 0 auto 1.2rem;
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    border: 3px solid #c8aa6e;
-    overflow: hidden;
-    box-shadow: 0 0 12px rgba(10, 200, 185, 0.4);
-    background: #040d1a;
+.username-tag {
+  display: block;
+  text-align: center;
+  color: #00cfc8;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
 
-    .avatar-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
+.rol-badge {
+  display: inline-block;
+  margin: 0 auto 20px auto;
+  background: rgba(0, 207, 200, 0.1);
+  border: 1px solid #00cfc8;
+  color: #00cfc8;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 3px 12px;
+  border-radius: 2px;
+  text-align: center;
+}
 
-  .usuario-nombre {
-    font-size: 1.4rem;
-    letter-spacing: 1.5px;
-    color: #f0e6d2;
-    margin: 0.5rem 0 0.2rem;
-    text-transform: uppercase;
-  }
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+  border-top: 1px solid rgba(120, 90, 40, 0.3);
+  padding-top: 16px;
+}
 
-  .usuario-username {
-    color: #0ac8b9;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-
-  .badge-rol {
-    display: inline-block;
-    background: rgba(10, 200, 185, 0.15);
-    border: 1px solid #0ac8b9;
-    color: #0ac8b9;
-    font-weight: bold;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.7rem;
-    border-radius: 2px;
-    letter-spacing: 1.5px;
-    margin-bottom: 1.5rem;
-  }
-
-  .info-grid, .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-    text-align: left;
-  }
-
-  .titulo-edicion {
-    color: #c8aa6e;
-    font-size: 1rem;
+.info-item {
+  label {
+    display: block;
+    color: #cdbe91;
+    font-size: 0.7rem;
+    font-weight: 700;
     letter-spacing: 1px;
-    margin-bottom: 1.2rem;
-    text-transform: uppercase;
-    border-bottom: 1px solid rgba(200, 170, 110, 0.2);
-    padding-bottom: 0.4rem;
+    margin-bottom: 4px;
   }
-
-  .info-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-    text-align: left;
-
-    label {
-      font-size: 0.65rem;
-      color: #a09b8c;
-      letter-spacing: 1px;
-      font-weight: bold;
-    }
-
-    .info-box {
-      background: #040d1a;
-      border: 1px solid #1e282d;
-      padding: 0.65rem;
-      border-radius: 2px;
-      font-size: 0.85rem;
-      word-break: break-all;
-    }
-
-    .input-hextech {
-      width: 100%;
-      background: #040d1a;
-      border: 1px solid #1e282d;
-      color: #f0e6d2;
-      padding: 0.65rem;
-      font-size: 0.85rem;
-      border-radius: 2px;
-      box-sizing: border-box;
-
-      &:focus {
-        outline: none;
-        border-color: #0ac8b9;
-        box-shadow: 0 0 6px rgba(10, 200, 185, 0.3);
-      }
-    }
-  }
-
-  .bio-group {
-    .bio-box {
-      min-height: 55px;
-    }
-  }
-
-  .acciones-container {
-    display: flex;
-    gap: 0.8rem;
-    margin-top: 1.2rem;
-
-    button {
-      flex: 1;
-    }
+  p {
+    color: #f0f6f8;
+    margin: 0;
+    font-size: 0.9rem;
   }
 }
 
-.seccion-mis-publicaciones {
-  flex: 1;
-  max-width: 650px;
-  width: 100%;
+.bio-section {
+  border-top: 1px solid rgba(120, 90, 40, 0.3);
+  padding-top: 14px;
+  margin-bottom: 20px;
 
-  .titulo-seccion {
-    color: #c8aa6e;
-    font-size: 1.2rem;
-    letter-spacing: 1.5px;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid #1e232a;
-    padding-bottom: 0.5rem;
-    text-transform: uppercase;
+  label {
+    display: block;
+    color: #cdbe91;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .bio-texto {
+    color: #d1d8e0;
+    font-style: italic;
+    font-size: 0.88rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// Estilos Formulario de Edición
+.title-editar {
+  color: #c8aa6e;
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  text-align: center;
+  letter-spacing: 1.5px;
+  margin: 0 0 20px 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+
+  label {
+    color: #cdbe91;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
   }
 
-  .lista-publicaciones {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
+  input[type="text"],
+  input[type="date"],
+  textarea {
+    background: #010a13;
+    border: 1px solid #1e2b3c;
+    color: #f0f6f8;
+    padding: 8px 10px;
+    border-radius: 2px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #00cfc8;
+      box-shadow: 0 0 8px rgba(0, 207, 200, 0.3);
+    }
   }
 
-  .sin-publicaciones, .estado-cargando {
-    background: #091428;
-    border: 1px dashed #1e282d;
-    padding: 2rem;
+  textarea {
+    resize: vertical;
+    min-height: 50px;
+  }
+}
+
+.upload-zone {
+  .btn-file-custom {
+    display: block;
+    width: 100%;
+    background: #05141c;
+    border: 1px dashed #00cfc8;
+    color: #cdbe91;
+    padding: 8px;
     text-align: center;
-    color: #a09b8c;
-    border-radius: 4px;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover:not(.disabled) {
+      background: rgba(0, 207, 200, 0.1);
+      color: #f0e6d2;
+    }
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 
-.btn-hextech {
+.btn-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-hextech-submit {
+  width: 100%;
   background: transparent;
   border: 1px solid #c8aa6e;
   color: #c8aa6e;
-  padding: 0.75rem;
-  font-weight: bold;
-  letter-spacing: 1px;
+  padding: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
   cursor: pointer;
   border-radius: 2px;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #c8aa6e;
-    color: #091428;
-  }
-
-  &.btn-save {
-    border-color: #0ac8b9;
-    color: #0ac8b9;
-
-    &:hover {
-      background: #0ac8b9;
-      color: #030a12;
-    }
-  }
-
-  &.btn-cancel {
-    border-color: #a01428;
-    color: #e84057;
-
-    &:hover {
-      background: #a01428;
-      color: #fff;
-    }
+  &:hover:not([disabled]) {
+    background: rgba(200, 170, 110, 0.15);
+    color: #f0e6d2;
+    box-shadow: 0 0 12px rgba(200, 170, 110, 0.35);
   }
 }
 
-.file-picker-wrapper {
-  margin-bottom: 0.5rem;
-
-  .input-file-hidden {
-    display: none;
-  }
-
-  .btn-upload {
-    display: block;
-    width: 100%;
-    text-align: center;
-    background: rgba(10, 200, 185, 0.08);
-    border: 1px dashed #0ac8b9;
-    color: #0ac8b9;
-    padding: 0.65rem;
-    font-size: 0.8rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(10, 200, 185, 0.2);
-      box-shadow: 0 0 8px rgba(10, 200, 185, 0.4);
-    }
-  }
-}
-
-.separador-o {
-  display: block;
-  text-align: center;
-  font-size: 0.65rem;
+.btn-hextech-cancel {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #a09b8c;
   color: #a09b8c;
-  margin: 0.4rem 0;
-  letter-spacing: 1
+  padding: 8px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+
+  &:hover:not([disabled]) {
+    border-color: #f0e6d2;
+    color: #f0e6d2;
+  }
+}
+
+// Columna Derecha (Publicaciones)
+.columna-publicaciones {
+  .title-seccion {
+    color: #c8aa6e;
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 1.2rem;
+    letter-spacing: 1.5px;
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(120, 90, 40, 0.4);
+    padding-bottom: 10px;
+  }
+}
+
+.spinner-container {
+  text-align: center;
+  padding: 40px;
+  color: #00cfc8;
+  font-weight: bold;
+
+  .spinner-hextech {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(0, 207, 200, 0.2);
+    border-top: 3px solid #00cfc8;
+    border-radius: 50%;
+    margin: 0 auto 12px auto;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+.empty-feed {
+  background: rgba(3, 10, 22, 0.7);
+  border: 1px dashed #1e2b3c;
+  padding: 30px;
+  text-align: center;
+  color: #8899a6;
+  border-radius: 4px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

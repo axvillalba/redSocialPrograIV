@@ -1,34 +1,51 @@
+<main class="login-container">
+  <div class="login-card">
+    <div class="card-header">
+      <span class="header-icon">⚔️</span>
+      <h2 class="title">INICIAR SESIÓN</h2>
+      <p class="subtitle">Ingresá tu usuario o correo electrónico para ingresar a la Grieta</p>
+    </div>
 
-<div class="auth-container">
-
-  <div class="auth-box">
-    <h2 class="lol-title">Iniciar Sesión</h2>
-    <p class="subtitle">Ingresá tu usuario o correo electrónico</p>
-
-    <div *ngIf="errorMensaje" class="error-banner">{{ errorMensaje }}</div>
-
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <div class="form-group">
-        <label>Usuario / Correo</label>
-        <input type="text" formControlName="login" placeholder="ejemplo@lol.com o nombreUsuario" />
+        <label for="login">USUARIO / CORREO</label>
+        <input 
+          type="text" 
+          id="login" 
+          formControlName="login" 
+          placeholder="Ej: axwalker o correo@ejemplo.com"
+          [class.is-invalid]="loginForm.get('login')?.touched && loginForm.get('login')?.invalid"
+        />
         <span class="error-text" *ngIf="loginForm.get('login')?.touched && loginForm.get('login')?.invalid">
-          Debe ingresar su correo o usuario.
+          Ingresá un usuario o correo válido.
         </span>
       </div>
 
       <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password" formControlName="password" placeholder="••••••••" />
+        <label for="password">CONTRASEÑA</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password" 
+          placeholder="••••••••"
+          [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+        />
         <span class="error-text" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-          La contraseña es requerida.
+          Ingresá tu contraseña.
         </span>
       </div>
 
-      <button type="submit" class="btn-hextech w-100">Ingresar a la Grieta</button>
+      <div class="alert-error" *ngIf="errorMensaje">
+        ⚠️ {{ errorMensaje }}
+      </div>
+
+      <button type="submit" class="btn-hextech-submit" [disabled]="loginForm.invalid">
+        INGRESAR A LA GRIETA
+      </button>
     </form>
 
-    <p class="redirect-text">
-      ¿No tenés cuenta? <a routerLink="/registro">Registrate acá</a>
-    </p>
+    <footer class="card-footer">
+      <p>¿No tenés cuenta? <a routerLink="/registro" class="link-hextech">Registrate acá</a></p>
+    </footer>
   </div>
-</div>
+</main>

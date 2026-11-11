@@ -1,4 +1,8 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://red-social-progra-iv.vercel.app'
+production: false,
+  apiUrl: 'http://localhost:3000',
+
+  cloudinaryCloudName: 'zjcgupxi',
+  cloudinaryUploadPreset: 'mi_app_unsigned'
+
 };

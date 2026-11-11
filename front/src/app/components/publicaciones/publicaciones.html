@@ -1,16 +1,14 @@
 <article class="card-publicacion" *ngIf="publicacion">
   <header class="card-header">
     <div class="usuario-info">
-      <!-- Soporta autor y fallback a usuario -->
       <span class="autor-tag">
         ⚔️ @{{ publicacion.autor?.nombreUsuario || publicacion.autor?.login || publicacion.autor?.nombre || publicacion.usuario?.nombreUsuario || 'Invocador' }}
       </span>
     </div>
-    <span class="fecha-tag">{{ publicacion.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+    <span class="fecha-tag">🕒 {{ publicacion.createdAt | tiempoHace }}</span>
   </header>
 
   <h4 class="post-titulo">{{ publicacion.titulo }}</h4>
-  <!-- Soporta tanto mensaje como descripcion -->
   <p class="post-descripcion">{{ publicacion.mensaje || publicacion.descripcion }}</p>
 
   <div class="imagen-container" *ngIf="publicacion.imagenUrl">
@@ -22,8 +20,10 @@
       type="button" 
       class="btn-hextech-like" 
       [class.liked]="usuarioYaDioLike" 
+      [disabled]="procesandoLike"
       (click)="toggleLike()">
-      <span class="corazon">❤️</span> 
+      <span class="corazon" *ngIf="!procesandoLike">❤️</span>
+      <span class="spinner-sm" *ngIf="procesandoLike">⏳</span>
       <span>{{ publicacion.meGusta?.length || 0 }} Me gusta</span>
     </button>
 
@@ -31,8 +31,20 @@
       type="button" 
       *ngIf="esMiPublicacion" 
       class="btn-hextech-delete" 
-      (click)="eliminar()">
+      (click)="solicitarEliminar()">
       🗑️ Eliminar
     </button>
   </footer>
 </article>
+
+<!-- Modal de confirmación para destrucción de publicación -->
+<app-modal
+  [mostrar]="mostrarModalEliminar"
+  titulo="DESTRUIR PUBLICACIÓN"
+  mensaje="¿Estás seguro de borrar este mensaje de la Grieta? Esta acción no se puede deshacer."
+  tipo="confirmacion"
+  textoConfirmar="ELIMINAR"
+  textoCancelar="CANCELAR"
+  (alConfirmar)="confirmarEliminacion()"
+  (alCancelar)="cancelarEliminacion()">
+</app-modal>

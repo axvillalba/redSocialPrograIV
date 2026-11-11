@@ -9,8 +9,12 @@ export class RegistroDto {
   @IsNotEmpty({ message: 'El apellido es obligatorio' })
   apellido: string;
 
-  @IsEmail({}, { message: 'El correo electrónico no es válido' })
-  correo: string;
+  @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
+  @IsEmail({}, { message: 'El formato del correo electrónico no es válido' })
+  @Matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
+    message: 'El correo debe incluir un dominio válido con extensión (ejemplo: usuario@dominio.com)',
+  })
+  correo: string
 
   @IsString()
   @IsNotEmpty({ message: 'El nombre de usuario es obligatorio' })

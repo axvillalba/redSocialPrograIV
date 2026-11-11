@@ -1,0 +1,121 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(1, 10, 19, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-box {
+  background: #030a16;
+  border: 1px solid #785a28;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(200, 170, 110, 0.25);
+  border-radius: 4px;
+  width: 90%;
+  max-width: 440px;
+  padding: 24px;
+  box-sizing: border-box;
+  animation: scaleUp 0.2s ease-in-out;
+
+  &.confirmacion {
+    border-color: #ff4655;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 70, 85, 0.25);
+  }
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(120, 90, 40, 0.4);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+
+  .modal-title {
+    color: #c8aa6e;
+    font-family: 'Cinzel', serif, system-ui;
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+    margin: 0;
+    text-transform: uppercase;
+  }
+}
+
+.modal-body {
+  margin-bottom: 24px;
+
+  .modal-mensaje {
+    color: #f0f6f8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-hextech-confirm {
+  background: transparent;
+  border: 1px solid #00cfc8;
+  color: #00cfc8;
+  padding: 8px 18px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #00cfc8;
+    color: #010a13;
+    box-shadow: 0 0 10px rgba(0, 207, 200, 0.4);
+  }
+
+  &.btn-danger {
+    border-color: #ff4655;
+    color: #ff4655;
+
+    &:hover {
+      background: #ff4655;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 70, 85, 0.4);
+    }
+  }
+}
+
+.btn-hextech-cancel {
+  background: transparent;
+  border: 1px solid #a09b8c;
+  color: #a09b8c;
+  padding: 8px 18px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #f0e6d2;
+    color: #f0e6d2;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
