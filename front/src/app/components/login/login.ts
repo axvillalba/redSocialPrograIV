@@ -11,7 +11,6 @@ import { AuthService } from '../../services/auth';
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
-
 export class LoginComponent {
   loginForm: FormGroup;
   errorMensaje: string = '';
@@ -27,34 +26,47 @@ export class LoginComponent {
     });
   }
 
- onSubmit() {
-  if (this.loginForm.invalid) {
-    this.loginForm.markAllAsTouched();
-    return;
-  }
-
-  this.authService.login(this.loginForm.value).subscribe({
-    next: (res: any) => {
-      // Guardar el token si el backend lo devuelve
-      if (res.token) {
-        localStorage.setItem('token', res.token);
-      }
-
-      // Extraer solo los datos esenciales para no saturar el localStorage
-      const usuarioLiviano = {
-        id: res.usuario?._id || res._id || res.id,
-        nombre: res.usuario?.nombre || res.nombre,
-        apellido: res.usuario?.apellido || res.apellido,
-        usuario: res.usuario?.usuario || res.usuario,
-        rol: res.usuario?.rol || res.rol
-      };
-
-      localStorage.setItem('usuario', JSON.stringify(usuarioLiviano));
-      this.router.navigate(['/publicaciones']);
-    },
-    error: (err) => {
-      this.errorMensaje = err.error?.message || 'Usuario o contraseña incorrectos.';
+  onSubmit() {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
     }
-  });
-}
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (res: any) => {
+        // 1. Guardar el token si el backend lo retorna
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+        }
+
+        const usuarioServidor = res.usuario || res;
+        const idUsuario = usuarioServidor._id || usuarioServidor.id;
+
+        // 2. Crear un objeto ultra-liviano libre de imágenes Base64
+        const usuarioLimpio = {
+          _id: idUsuario,
+          id: idUsuario,
+          nombre: usuarioServidor.nombre || '',
+          apellido: usuarioServidor.apellido || '',
+          nombreUsuario: usuarioServidor.nombreUsuario || usuarioServidor.login || '',
+          correo: usuarioServidor.correo || usuarioServidor.email || '',
+          rol: usuarioServidor.rol || 'USUARIO'
+        };
+
+        // 3. Guardar limpiando cualquier basura previa
+        try {
+          localStorage.removeItem('usuario');
+          localStorage.setItem('usuario', JSON.stringify(usuarioLimpio));
+        } catch (e) {
+          console.error('Error al guardar usuario en localStorage:', e);
+        }
+
+        // 4. Redirigir a publicaciones
+        this.router.navigate(['/publicaciones']);
+      },
+      error: (err) => {
+        this.errorMensaje = err.error?.message || 'Usuario o contraseña incorrectos.';
+      }
+    });
+  }
 }

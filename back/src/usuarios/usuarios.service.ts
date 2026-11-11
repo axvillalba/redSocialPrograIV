@@ -43,4 +43,17 @@ export class UsuariosService {
       console.log('>>> Usuario Administrador inicial creado: admin / Admin1234');
     }
   }
+
+  async actualizarUsuario(id: string, datos: Partial<Usuario>): Promise<Usuario> {
+  const usuarioActualizado = await this.usuarioModel
+    .findByIdAndUpdate(id, datos, { new: true })
+    .select('-password') // Excluir la contraseña por seguridad
+    .exec();
+
+  if (!usuarioActualizado) {
+    throw new NotFoundException('Usuario no encontrado');
+  }
+
+  return usuarioActualizado;
+}
 }

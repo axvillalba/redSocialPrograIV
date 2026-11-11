@@ -1,0 +1,106 @@
+<app-navbar></app-navbar>
+
+<main class="feed-layout">
+  <div class="feed-container">
+    
+    <!-- TARJETA CREAR POST -->
+    <section class="crear-post-card">
+      <h3 class="card-title">NUEVA PUBLICACIÓN EN LA GRIETA</h3>
+      <form (ngSubmit)="crearPublicacion()">
+        <div class="form-group">
+          <label class="form-label">TÍTULO</label>
+          <input 
+            type="text" 
+            [(ngModel)]="nuevoPost.titulo" 
+            name="titulo" 
+            placeholder="Título de tu publicación..." 
+            class="input-hextech" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">MENSAJE</label>
+          <textarea 
+            [(ngModel)]="nuevoPost.descripcion" 
+            name="descripcion" 
+            rows="3" 
+            placeholder="¿Qué querés compartir con los invocadores?" 
+            class="input-hextech textarea-hextech" 
+            required>
+          </textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">URL DE IMAGEN (OPCIONAL)</label>
+          <input 
+            type="text" 
+            [(ngModel)]="nuevoPost.imagenUrl" 
+            name="imagenUrl" 
+            placeholder="https://ejemplo.com/imagen.jpg" 
+            class="input-hextech" 
+          />
+        </div>
+
+        <button type="submit" class="btn-hextech-submit">PUBLICAR</button>
+      </form>
+    </section>
+
+    <!-- BARRA DE CONTROLES: ORDENAMIENTO Y PAGINACIÓN -->
+    <section class="controles-bar">
+      <div class="orden-group">
+        <span class="label-control">ORDENAR POR:</span>
+        <div class="button-toggle-group">
+          <button 
+            type="button"
+            class="btn-ctrl"
+            [class.activo]="ordenSeleccionado === 'fecha'" 
+            (click)="cambiarOrden('fecha')">
+            MÁS RECIENTES
+          </button>
+          <button 
+            type="button"
+            class="btn-ctrl"
+            [class.activo]="ordenSeleccionado === 'meGusta'" 
+            (click)="cambiarOrden('meGusta')">
+            MÁS ME GUSTA
+          </button>
+        </div>
+      </div>
+
+      <div class="paginacion-group">
+        <button 
+          type="button"
+          class="btn-ctrl btn-pag"
+          (click)="paginaAnterior()" 
+          [disabled]="offset === 0">
+          ◀ ANTERIOR
+        </button>
+        <span class="pag-actual">PÁG. {{ paginaActual }}</span>
+        <button 
+          type="button"
+          class="btn-ctrl btn-pag"
+          (click)="paginaSiguiente()" 
+          [disabled]="publicaciones.length < limit">
+          SIGUIENTE ▶
+        </button>
+      </div>
+    </section>
+
+    <!-- FEED DE PUBLICACIONES -->
+    <section class="lista-feed">
+      <app-publicacion
+        *ngFor="let pub of publicaciones"
+        [publicacion]="pub"
+        [usuarioActualId]="usuarioActualId"
+        (meGustaToggled)="handleLikeToggle(pub)"
+        (eliminarSolicitado)="handleEliminar($event)">
+      </app-publicacion>
+
+      <div *ngIf="publicaciones.length === 0" class="sin-publicaciones">
+        No hay publicaciones disponibles en esta sección.
+      </div>
+    </section>
+
+  </div>
+</main>

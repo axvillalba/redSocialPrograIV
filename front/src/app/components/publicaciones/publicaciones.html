@@ -1,1 +1,38 @@
-<p>publicaciones works!</p>
+<article class="card-publicacion" *ngIf="publicacion">
+  <header class="card-header">
+    <div class="usuario-info">
+      <!-- Soporta autor y fallback a usuario -->
+      <span class="autor-tag">
+        ⚔️ @{{ publicacion.autor?.nombreUsuario || publicacion.autor?.login || publicacion.autor?.nombre || publicacion.usuario?.nombreUsuario || 'Invocador' }}
+      </span>
+    </div>
+    <span class="fecha-tag">{{ publicacion.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+  </header>
+
+  <h4 class="post-titulo">{{ publicacion.titulo }}</h4>
+  <!-- Soporta tanto mensaje como descripcion -->
+  <p class="post-descripcion">{{ publicacion.mensaje || publicacion.descripcion }}</p>
+
+  <div class="imagen-container" *ngIf="publicacion.imagenUrl">
+    <img [src]="publicacion.imagenUrl" alt="Imagen de publicación" class="post-img" />
+  </div>
+
+  <footer class="card-footer">
+    <button 
+      type="button" 
+      class="btn-hextech-like" 
+      [class.liked]="usuarioYaDioLike" 
+      (click)="toggleLike()">
+      <span class="corazon">❤️</span> 
+      <span>{{ publicacion.meGusta?.length || 0 }} Me gusta</span>
+    </button>
+
+    <button 
+      type="button" 
+      *ngIf="esMiPublicacion" 
+      class="btn-hextech-delete" 
+      (click)="eliminar()">
+      🗑️ Eliminar
+    </button>
+  </footer>
+</article>

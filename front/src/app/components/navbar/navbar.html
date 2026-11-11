@@ -1,0 +1,17 @@
+<nav class="navbar-hextech">
+  <div class="nav-brand" routerLink="/publicaciones">
+    <span class="logo-icon">⚔️</span>
+    <span class="logo-text">LA GRIETA DEL INVOCADOR</span>
+  </div>
+
+  <div class="nav-user-actions">
+    <a routerLink="/perfil" class="nav-profile-btn" title="Ir a mi perfil">
+      <div class="avatar-circle">
+        <img [src]="obtenerAvatar()" (error)="errorImagen($event)" alt="Foto de Perfil" />
+      </div>
+      <span class="user-name">@{{ usuario?.nombreUsuario || usuario?.nombre || 'Invocador' }}</span>
+    </a>
+
+    <button type="button" class="btn-logout" (click)="cerrarSesion()">CERRAR SESIÓN</button>
+  </div>
+</nav>

@@ -1,0 +1,119 @@
+.card-publicacion {
+  background: #091428;
+  border: 1px solid #c8aa6e;
+  border-radius: 4px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 10px rgba(200, 170, 110, 0.1);
+  transition: all 0.25 ease;
+  margin-bottom: 1.2rem;
+
+  &:hover {
+    border-color: #0ac8b9;
+    box-shadow: 0 0 15px rgba(10, 200, 185, 0.3);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(200, 170, 110, 0.2);
+    padding-bottom: 0.5rem;
+
+    .autor-tag {
+      color: #0ac8b9;
+      font-weight: bold;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+    }
+
+    .fecha-tag {
+      color: #a09b8c;
+      font-size: 0.75rem;
+    }
+  }
+
+  .post-titulo {
+    color: #f0e6d2;
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif, sans-serif;
+  }
+
+  .post-descripcion {
+    color: #cdbe91;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+    white-space: pre-wrap;
+  }
+
+  .imagen-container {
+    margin-bottom: 1.2rem;
+    max-height: 400px;
+    overflow: hidden;
+    border-radius: 3px;
+    border: 1px solid #1e282d;
+
+    .post-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+
+    .btn-hextech-like {
+      background: #040d1a;
+      border: 1px solid #1e282d;
+      color: #f0e6d2;
+      padding: 0.5rem 1rem;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #e84057;
+        color: #e84057;
+      }
+
+      &.liked {
+        border-color: #e84057;
+        color: #e84057;
+        background: rgba(232, 64, 87, 0.15);
+        box-shadow: 0 0 8px rgba(232, 64, 87, 0.4);
+      }
+    }
+
+    .btn-hextech-delete {
+      background: transparent;
+      border: 1px solid #a01428;
+      color: #e84057;
+      padding: 0.45rem 0.9rem;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #a01428;
+        color: #ffffff;
+        box-shadow: 0 0 10px rgba(160, 20, 40, 0.5);
+      }
+    }
+  }
+}

@@ -1,59 +1,116 @@
-<div class="perfil-container">
-  <div class="hextech-card" *ngIf="!cargando && usuario">
+<!-- NAVBAR SUPERIOR REUTILIZABLE -->
+<app-navbar></app-navbar>
 
-    <!-- Encabezado del Perfil -->
-    <div class="perfil-header">
-      <div class="avatar-wrapper">
-        <img [src]="obtenerAvatar(usuario)" (error)="errorImagen($event)" alt="Avatar Invocador" class="avatar-img" />
-        <div class="hextech-frame"></div>
-      </div>
+<div class="perfil-layout" *ngIf="usuario">
 
-      <h2 class="perfil-nombre">{{ usuario.nombre }} {{ usuario.apellido }}</h2>
-      <span class="perfil-tag">@{{ usuario.nombreUsuario }}</span>
-      <span class="badge-rol" [class.admin]="usuario.perfil === 'administrador'">
-        {{ usuario.perfil | uppercase }}
-      </span>
+  <!-- COLUMNA IZQUIERDA: TARJETA DE USUARIO -->
+  <div class="perfil-card">
+    <div class="avatar-wrapper">
+      <img [src]="obtenerAvatar(usuario)" (error)="errorImagen($event)" alt="Avatar Invocador" class="avatar-img" />
     </div>
 
-    <div class="divider"></div>
+    <!-- VISTA MODO LECTURA -->
+    <ng-container *ngIf="!editando">
+      <h2 class="usuario-nombre">{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+      <p class="usuario-username">@{{ usuario.nombreUsuario || usuario.login }}</p>
+      <span class="badge-rol">INVOCADOR</span>
 
-    <!-- Detalles del Invocador -->
-    <div class="perfil-body">
+      <div class="info-grid">
+        <div class="info-group">
+          <label>CORREO ELECTRÓNICO</label>
+          <div class="info-box">{{ usuario.correo || usuario.email }}</div>
+        </div>
+        <div class="info-group">
+          <label>FECHA DE NACIMIENTO</label>
+          <div class="info-box">{{ usuario.fechaNacimiento }}</div>
+        </div>
+      </div>
+
+      <div class="info-group bio-group">
+        <label>DESCRIPCIÓN / BIO</label>
+        <div class="info-box bio-box"><em>{{ usuario.descripcion || 'Sin descripción' }}</em></div>
+      </div>
+
+      <div class="acciones-container">
+        <button type="button" class="btn-hextech" (click)="activarEdicion()">EDITAR PERFIL</button>
+      </div>
+    </ng-container>
+
+    <!-- FORMULARIO MODO EDICIÓN -->
+    <ng-container *ngIf="editando">
+      <h3 class="titulo-edicion">EDITAR DATOS DE INVOCADOR</h3>
+
+      <div class="form-grid">
+        <div class="info-group">
+          <label>NOMBRE</label>
+          <input type="text" [(ngModel)]="datosEdicion.nombre" class="input-hextech" />
+        </div>
+
+        <div class="info-group">
+          <label>APELLIDO</label>
+          <input type="text" [(ngModel)]="datosEdicion.apellido" class="input-hextech" />
+        </div>
+      </div>
+
       <div class="info-group">
-        <label>Correo Electrónico</label>
-        <p>{{ usuario.correo }}</p>
+        <label>NOMBRE DE USUARIO</label>
+        <input type="text" [(ngModel)]="datosEdicion.nombreUsuario" class="input-hextech" />
       </div>
 
       <div class="info-group">
-        <label>Fecha de Nacimiento</label>
-        <p>{{ usuario.fechaNacimiento | date:'dd/MM/yyyy' }}</p>
+        <label>FOTO DE PERFIL / AVATAR</label>
+
+        <div class="file-picker-wrapper">
+          <!-- Input oculto controlado por la etiqueta -->
+          <input type="file" id="avatar-file-input" accept="image/*" (change)="onFileSelected($event)"
+            class="input-file-hidden" />
+
+          <label for="avatar-file-input" class="btn-hextech btn-upload">
+            📁 ELEGIR IMAGEN DEL ORDENADOR
+          </label>
+        </div>
+
+        <span class="separador-o">— O pegá una URL directa —</span>
+
+        <input type="text" [(ngModel)]="datosEdicion.imagenPerfil" placeholder="https://ejemplo.com/avatar.jpg"
+          class="input-hextech" />
       </div>
 
-      <div class="info-group full-width">
-        <label>Descripción / Bio</label>
-        <p class="descripcion">{{ usuario.descripcion || 'Sin descripción registrada.' }}</p>
+      <div class="info-group bio-group">
+        <label>DESCRIPCIÓN / BIO</label>
+        <textarea [(ngModel)]="datosEdicion.descripcion" rows="3" class="input-hextech"></textarea>
       </div>
+
+      <div class="acciones-container">
+        <button type="button" class="btn-hextech btn-save" (click)="guardarCambios()" [disabled]="guardando">
+          {{ guardando ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
+        </button>
+        <button type="button" class="btn-hextech btn-cancel" (click)="cancelarEdicion()" [disabled]="guardando">
+          CANCELAR
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <!-- COLUMNA DERECHA: ÚLTIMAS PUBLICACIONES -->
+  <section class="seccion-mis-publicaciones">
+    <h3 class="titulo-seccion">MIS ÚLTIMAS PUBLICACIONES (MÁX. 3)</h3>
+
+    <div *ngIf="cargandoPublicaciones" class="estado-cargando">
+      Cargando publicaciones...
     </div>
 
-    <!-- Acciones -->
-    <div class="perfil-actions">
-      <a routerLink="/publicaciones" class="btn-hextech btn-secondary">
-        VOLVER A LA GRIETA
-      </a>
-      <button (click)="cerrarSesion()" class="btn-hextech btn-danger">
-        CERRAR SESIÓN
-      </button>
+    <div *ngIf="!cargandoPublicaciones && ultimasPublicaciones.length === 0" class="sin-publicaciones">
+      Aún no has realizado ninguna publicación en la Grieta.
     </div>
 
-  </div>
+    <div class="lista-publicaciones" *ngIf="!cargandoPublicaciones && ultimasPublicaciones.length > 0">
+      <app-publicacion *ngFor="let pub of ultimasPublicaciones" [publicacion]="pub"
+        [usuarioActualId]="usuario._id || usuario.id" (meGustaToggled)="handleLikeToggle(pub)"
+        (eliminarSolicitado)="handleEliminar($event)">
+      </app-publicacion>
+    </div>
+  </section>
 
-  <!-- Estado de Carga / Error -->
-  <div class="hextech-card text-center" *ngIf="cargando">
-    <p class="loading-text">CARGANDO DATOS DE INVOCADOR...</p>
-  </div>
-
-  <div class="hextech-card text-center" *ngIf="errorMensaje">
-    <p class="error-text">{{ errorMensaje }}</p>
-    <a routerLink="/publicaciones" class="btn-hextech btn-secondary">VOLVER</a>
-  </div>
 </div>
