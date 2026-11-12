@@ -5,4 +5,5 @@ export const environment = {
   cloudinaryCloudName: 'zjcgupxi',
   cloudinaryUploadPreset: 'mi_app_unsigned'
 
+  //
 };
