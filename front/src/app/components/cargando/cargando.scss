@@ -1,53 +1,47 @@
-.cargando-container {
+.cargando-screen {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at center, rgba(3, 18, 34, 0.9) 0%, #010a13 100%);
+  background: radial-gradient(circle at center, #091428 0%, #010a13 100%);
 }
 
 .hextech-loader-box {
   text-align: center;
-  position: relative;
-  padding: 40px;
+  padding: 40px 32px;
+  border: 1px solid #785a28;
+  background: rgba(3, 10, 22, 0.9);
+  box-shadow: 0 0 30px rgba(0, 207, 200, 0.15);
+  border-radius: 4px;
 }
 
-.hextech-ring {
-  width: 74px;
-  height: 74px;
-  border: 3px solid rgba(200, 170, 110, 0.2);
-  border-top: 3px solid #00cfc8;
-  border-right: 3px solid #c8aa6e;
+.spinner-hextech {
+  width: 54px;
+  height: 54px;
+  border: 4px solid rgba(0, 207, 200, 0.2);
+  border-top-color: #00cfc8;
+  border-bottom-color: #c8aa6e;
   border-radius: 50%;
   margin: 0 auto 20px auto;
-  animation: spinHextech 1s linear infinite;
-  box-shadow: 0 0 20px rgba(0, 207, 200, 0.35);
+  animation: spin 0.9s linear infinite;
 }
 
-.loader-icon {
-  position: absolute;
-  top: 63px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.5rem;
-}
-
-.loader-title {
-  color: #c8aa6e;
-  font-family: 'Cinzel Decorative', 'Cinzel', serif;
-  font-size: 1.3rem;
+.titulo-carga {
+  color: #f0e6d2;
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
   letter-spacing: 2px;
   margin: 0 0 8px 0;
 }
 
-.loader-subtitle {
+.subtitulo-carga {
   color: #00cfc8;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   letter-spacing: 1px;
   margin: 0;
 }
 
-@keyframes spinHextech {
+@keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }

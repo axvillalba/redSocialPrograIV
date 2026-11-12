@@ -20,7 +20,7 @@ export class AutenticacionService {
       id: usuario._id.toString(),
       correo: usuario.correo,
       nombreUsuario: usuario.nombreUsuario,
-      rol: usuario.rol || 'usuario',
+      rol: usuario.perfil || usuario.rol || 'usuario',
     };
     return this.jwtService.signAsync(payload, { expiresIn: '15m' });
   }

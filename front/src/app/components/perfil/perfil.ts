@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -44,6 +44,7 @@ export class PerfilComponent implements OnInit {
     private authService: AuthService,
     private publicacionesService: PublicacionesService,
     private cloudinaryService: CloudinaryService,
+    private cdr: ChangeDetectorRef,
     private router: Router
   ) { }
 
@@ -185,6 +186,7 @@ export class PerfilComponent implements OnInit {
     if (!usuarioId) return;
 
     this.cargandoPublicaciones = true;
+    this.cdr.detectChanges();
 
     this.publicacionesService.obtenerPublicaciones({
       usuarioId: usuarioId,
@@ -202,10 +204,12 @@ export class PerfilComponent implements OnInit {
         // Garantizamos extraer las últimas 3 publicaciones del usuario
         this.ultimasPublicaciones = misPosts.slice(0, 3);
         this.cargandoPublicaciones = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar publicaciones:', err);
         this.cargandoPublicaciones = false;
+        this.cdr.detectChanges();
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from './services/auth';
@@ -16,12 +16,13 @@ export class AppComponent implements OnInit, OnDestroy {
   private timerSesion: any = null;
   private sesionSub?: Subscription;
 
-  // 10 minutos en milisegundos
-  private readonly TIEMPO_AVISO_MS = 10 * 60 * 1000;
+  // Temporal para revisión: 30 segundos (valor final de entrega: 10 * 60 * 1000)
+  private readonly TIEMPO_AVISO_MS = 30 * 1000;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
       } else {
         this.limpiarContadorSesion();
         this.mostrarModalSesion = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -40,6 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.timerSesion = setTimeout(() => {
       if (this.authService.obtenerToken()) {
         this.mostrarModalSesion = true;
+        this.cdr.detectChanges(); // Fuerza a mostrar el modal en modo zoneless
       }
     }, this.TIEMPO_AVISO_MS);
   }
@@ -53,9 +56,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   extenderSesion(): void {
     this.mostrarModalSesion = false;
+    this.cdr.detectChanges();
+
     this.authService.refrescar().subscribe({
       next: () => {
-        // El BehaviorSubject sesionActiva$ reinicia el contador de 10 min automáticamente
+        // sesionActiva$ reinicia el contador de 30s automáticamente
       },
       error: () => {
         this.authService.cerrarSesion();
@@ -66,6 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   rechazarExtension(): void {
     this.mostrarModalSesion = false;
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {

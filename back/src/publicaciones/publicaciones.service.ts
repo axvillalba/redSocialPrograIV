@@ -137,8 +137,7 @@ export class PublicacionesService {
     }
 
     const ordenados = [...(publicacion.comentarios || [])].sort(
-      (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime(),
-    );
+      (a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
     const paginados = ordenados.slice(offset, offset + limit);
 

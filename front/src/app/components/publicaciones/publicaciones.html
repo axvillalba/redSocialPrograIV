@@ -8,24 +8,37 @@
     <span class="fecha-tag">🕒 {{ publicacion.createdAt | tiempoHace }}</span>
   </header>
 
-  <h4 class="post-titulo">{{ publicacion.titulo }}</h4>
+  <h4 class="post-titulo post-titulo-link" [routerLink]="['/publicacion', publicacion._id]">
+    {{ publicacion.titulo }}
+  </h4>
   <p class="post-descripcion">{{ publicacion.mensaje || publicacion.descripcion }}</p>
 
   <div class="imagen-container" *ngIf="publicacion.imagenUrl">
-    <img [src]="publicacion.imagenUrl" alt="Imagen de publicación" class="post-img" />
+    <img
+      [src]="publicacion.imagenUrl"
+      alt="Imagen de publicación"
+      class="post-img"
+      [routerLink]="['/publicacion', publicacion._id]"
+    />
   </div>
 
   <footer class="card-footer">
-    <button 
-      type="button" 
-      class="btn-hextech-like" 
-      [class.liked]="usuarioYaDioLike" 
-      [disabled]="procesandoLike"
-      (click)="toggleLike()">
-      <span class="corazon" *ngIf="!procesandoLike">❤️</span>
-      <span class="spinner-sm" *ngIf="procesandoLike">⏳</span>
-      <span>{{ publicacion.meGusta?.length || 0 }} Me gusta</span>
-    </button>
+    <div class="footer-izquierda">
+      <button 
+        type="button" 
+        class="btn-hextech-like" 
+        [class.liked]="usuarioYaDioLike" 
+        [disabled]="procesandoLike"
+        (click)="toggleLike()">
+        <span class="corazon" *ngIf="!procesandoLike">❤️</span>
+        <span class="spinner-sm" *ngIf="procesandoLike">⏳</span>
+        <span>{{ publicacion.meGusta?.length || 0 }} Me gusta</span>
+      </button>
+
+      <a [routerLink]="['/publicacion', publicacion._id]" class="btn-hextech-comentarios">
+        💬 {{ publicacion.comentarios?.length || 0 }} Comentarios
+      </a>
+    </div>
 
     <button 
       type="button" 

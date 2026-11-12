@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PublicacionesService {
-  //private readonly baseUrl = 'https://red-social-progra-iv.vercel.app'; // O tu URL de backend
-  private readonly baseUrl = 'http://localhost:3000';  //A modo de prueba
+  private readonly baseUrl = 'https://red-social-progra-iv.vercel.app'; // O tu URL de backend
+  //private readonly baseUrl = 'http://localhost:3000';  //A modo de prueba
   constructor(private readonly http: HttpClient) {}
 
   // Aceptar 'any' para evitar incompatibilidad de tipos al enviar payload
@@ -46,5 +46,34 @@ obtenerPublicaciones(params: {
 
   quitarMeGusta(id: string, usuarioId: string): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/publicaciones/${id}/like?usuarioId=${usuarioId}`);
+  }
+
+  obtenerPublicacionPorId(id: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/publicaciones/${id}`);
+  }
+
+  obtenerComentarios(publicacionId: string, limit: number = 5, offset: number = 0): Observable<any> {
+    return this.http.get<any>(
+      `${this.baseUrl}/publicaciones/${publicacionId}/comentarios?limit=${limit}&offset=${offset}`
+    );
+  }
+
+  agregarComentario(publicacionId: string, usuarioId: string, mensaje: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/publicaciones/${publicacionId}/comentarios`,
+      { usuarioId, mensaje }
+    );
+  }
+
+  editarComentario(
+    publicacionId: string,
+    comentarioId: string,
+    usuarioId: string,
+    mensaje: string
+  ): Observable<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/publicaciones/${publicacionId}/comentarios/${comentarioId}`,
+      { usuarioId, mensaje }
+    );
   }
 }

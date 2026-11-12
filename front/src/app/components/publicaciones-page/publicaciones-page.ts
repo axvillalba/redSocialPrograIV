@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -46,6 +46,7 @@ export class PublicacionesPageComponent implements OnInit {
   constructor(
     private publicacionesService: PublicacionesService,
     private cloudinaryService: CloudinaryService,
+    private cdr: ChangeDetectorRef,
     private router: Router
   ) {}
 
@@ -136,6 +137,7 @@ export class PublicacionesPageComponent implements OnInit {
 
   cargarPublicaciones(): void {
     this.cargandoFeed = true;
+    this.cdr.detectChanges();
     this.publicacionesService
       .obtenerPublicaciones({
         orden: this.ordenSeleccionado,
@@ -146,10 +148,12 @@ export class PublicacionesPageComponent implements OnInit {
         next: (data) => {
           this.publicaciones = data;
           this.cargandoFeed = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error al obtener publicaciones:', err);
           this.cargandoFeed = false;
+          this.cdr.detectChanges();
         },
       });
   }

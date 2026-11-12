@@ -1,0 +1,167 @@
+<app-navbar></app-navbar>
+<main class="detalle-container">
+  <div class="top-nav-detalle">
+    <a routerLink="/publicaciones" class="btn-volver">← VOLVER A LA GRIETA</a>
+  </div>
+
+  @if (cargandoPublicacion) {
+    <div class="spinner-container">
+      <div class="spinner-hextech"></div>
+      <p>CARGANDO PUBLICACIÓN...</p>
+    </div>
+  } @else if (publicacion) {
+    <!-- PUBLICACIÓN AMPLIADA -->
+    <article class="publicacion-grande-card">
+      <header class="post-header">
+        <div class="autor-info">
+          <img
+            [src]="autorPublicacion.imagenPerfilUrl || autorPublicacion.imagenPerfil || 'assets/default-avatar.png'"
+            alt="Avatar"
+            class="autor-avatar"
+          />
+          <div>
+            <span class="autor-username">&#64;{{ autorPublicacion.nombreUsuario || 'invocador' }}</span>
+            <span class="post-fecha">🕒 {{ publicacion.createdAt | tiempoHace }}</span>
+          </div>
+        </div>
+      </header>
+
+      <h1 class="post-titulo-grande">{{ publicacion.titulo }}</h1>
+
+      @if (publicacion.mensaje || publicacion.descripcion) {
+        <p class="post-mensaje-grande">{{ publicacion.mensaje || publicacion.descripcion }}</p>
+      }
+
+      @if (publicacion.imagenUrl) {
+        <div class="post-imagen-wrapper">
+          <img [src]="publicacion.imagenUrl" [alt]="publicacion.titulo" class="post-imagen-grande" />
+        </div>
+      }
+
+      <footer class="post-footer">
+        <button
+          type="button"
+          class="btn-like"
+          [class.liked]="dioMeGusta"
+          [disabled]="procesandoLike"
+          (click)="toggleLike()">
+          @if (procesandoLike) {
+            <span class="mini-spinner"></span>
+          } @else {
+            <span>{{ dioMeGusta ? '❤️' : '🤍' }} {{ publicacion.meGusta?.length || 0 }} Me gusta</span>
+          }
+        </button>
+
+        <span class="contador-comentarios">💬 {{ totalComentarios }} Comentarios</span>
+      </footer>
+    </article>
+
+    <!-- SECCIÓN DE COMENTARIOS -->
+    <section class="comentarios-section">
+      <h2 class="seccion-titulo">COMENTARIOS DE INVOCADORES ({{ totalComentarios }})</h2>
+
+      <!-- Formulario nuevo comentario -->
+      <div class="nuevo-comentario-box">
+        <textarea
+          [(ngModel)]="nuevoComentario"
+          rows="3"
+          placeholder="Escribí tu comentario en la Grieta..."
+          [disabled]="enviandoComentario">
+        </textarea>
+        <div class="nuevo-comentario-actions">
+          <button
+            type="button"
+            class="btn-hextech-submit"
+            [disabled]="!nuevoComentario.trim() || enviandoComentario"
+            (click)="enviarComentario()">
+            {{ enviandoComentario ? 'PUBLICANDO...' : 'COMENTAR' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de comentarios -->
+      @if (cargandoComentarios) {
+        <div class="spinner-container">
+          <div class="spinner-hextech"></div>
+          <p>CARGANDO COMENTARIOS...</p>
+        </div>
+      } @else if (comentarios.length === 0) {
+        <div class="empty-comentarios">
+          Todavía no hay comentarios en esta publicación. ¡Sé el primero en opinar!
+        </div>
+      } @else {
+        <div class="comentarios-lista">
+          @for (com of comentarios; track com._id) {
+            <div class="comentario-card">
+              <div class="comentario-header">
+                <div class="comentario-autor">
+                  <img
+                    [src]="com.usuario?.imagenPerfilUrl || com.usuario?.imagenPerfil || 'assets/default-avatar.png'"
+                    alt="Avatar"
+                    class="comentario-avatar"
+                  />
+                  <span class="comentario-username">&#64;{{ com.usuario?.nombreUsuario || 'invocador' }}</span>
+                  <span class="comentario-fecha">🕒 {{ com.fecha | tiempoHace }}</span>
+
+                  @if (com.modificado) {
+                    <span class="badge-editado">(Editado)</span>
+                  }
+                </div>
+
+                @if (esAutorComentario(com) && comentarioEditandoId !== com._id) {
+                  <button
+                    type="button"
+                    class="btn-editar-comentario"
+                    (click)="iniciarEdicion(com)">
+                    ✎ EDITAR
+                  </button>
+                }
+              </div>
+
+              @if (comentarioEditandoId === com._id) {
+                <div class="edicion-inline-box">
+                  <textarea
+                    [(ngModel)]="mensajeEditado"
+                    rows="2"
+                    [disabled]="guardandoEdicion">
+                  </textarea>
+                  <div class="edicion-inline-actions">
+                    <button
+                      type="button"
+                      class="btn-cancelar-edicion"
+                      [disabled]="guardandoEdicion"
+                      (click)="cancelarEdicion()">
+                      CANCELAR
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-guardar-edicion"
+                      [disabled]="!mensajeEditado.trim() || guardandoEdicion"
+                      (click)="guardarEdicion(com)">
+                      {{ guardandoEdicion ? 'GUARDANDO...' : 'GUARDAR CAMBIOS' }}
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <p class="comentario-texto">{{ com.mensaje }}</p>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Botón paginación acumulativa -->
+        @if (hayMasComentarios) {
+          <div class="cargar-mas-wrapper">
+            <button
+              type="button"
+              class="btn-cargar-mas"
+              [disabled]="cargandoMas"
+              (click)="cargarComentarios(false)">
+              {{ cargandoMas ? 'CARGANDO...' : 'CARGAR MÁS COMENTARIOS' }}
+            </button>
+          </div>
+        }
+      }
+    </section>
+  }
+</main>

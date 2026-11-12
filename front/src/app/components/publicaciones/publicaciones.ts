@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../modal/modal';
 import { TiempoHacePipe } from '../../pipes/tiempo-hace.pipe';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-publicacion',
   standalone: true,
-  imports: [CommonModule, ModalComponent, TiempoHacePipe],
+  imports: [CommonModule, ModalComponent, TiempoHacePipe, RouterLink],
   templateUrl: './publicaciones.html',
   styleUrls: ['./publicaciones.scss'],
 })
