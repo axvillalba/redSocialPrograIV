@@ -69,6 +69,7 @@ export class RegistroComponent {
       return;
     }
 
+    this.errorMensaje = '';
     this.guardando = true;
 
     const payload = {
@@ -83,11 +84,12 @@ export class RegistroComponent {
       imagenPerfil: this.imagenSubidaUrl
     };
 
-  
     this.authService.registrar(payload).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.guardando = false;
-        this.router.navigate(['/login']);
+        // Guarda el token JWT devuelto por el backend y los datos del usuario en localStorage
+        this.authService.guardarSesion(res);
+        this.router.navigate(['/publicaciones']);
       },
       error: (err) => {
         console.error('Error en registro:', err);

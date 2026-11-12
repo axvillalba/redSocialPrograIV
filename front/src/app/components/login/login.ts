@@ -26,44 +26,18 @@ export class LoginComponent {
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
+    this.errorMensaje = '';
+
     this.authService.login(this.loginForm.value).subscribe({
       next: (res: any) => {
-        // 1. Guardar token si el backend lo envía
-        if (res.token) {
-          localStorage.setItem('token', res.token);
-        }
-
-        const usuarioServidor = res.usuario || res;
-        const idUsuario = usuarioServidor._id || usuarioServidor.id;
-
-        // 2. Incluir la URL de Cloudinary y fechaNacimiento
-        const usuarioLimpio = {
-          _id: idUsuario,
-          id: idUsuario,
-          nombre: usuarioServidor.nombre || '',
-          apellido: usuarioServidor.apellido || '',
-          nombreUsuario: usuarioServidor.nombreUsuario || usuarioServidor.login || '',
-          correo: usuarioServidor.correo || usuarioServidor.email || '',
-          fechaNacimiento: usuarioServidor.fechaNacimiento || '',
-          imagenPerfilUrl: usuarioServidor.imagenPerfilUrl || usuarioServidor.imagenPerfil || '',
-          rol: usuarioServidor.rol || 'USUARIO'
-        };
-
-        // 3. Persistir en localStorage
-        try {
-          localStorage.removeItem('usuario');
-          localStorage.setItem('usuario', JSON.stringify(usuarioLimpio));
-        } catch (e) {
-          console.error('Error al guardar usuario en localStorage:', e);
-        }
-
-        // 4. Redirigir a publicaciones
+        // Guarda el token ('hextech_token'), normaliza 'usuario' y arranca el timer de 10 min
+        this.authService.guardarSesion(res);
         this.router.navigate(['/publicaciones']);
       },
       error: (err) => {

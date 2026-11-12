@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Publicacion } from './schemas/publicacion.schema.js';
@@ -112,4 +112,103 @@ export class PublicacionesService {
       { new: true }
     ).exec();
   }
+  //Nuevos metodos Sprint3
+  // Obtener detalle de 1 publicación
+  async obtenerPorId(id: string) {
+    const publicacion = await this.publicacionModel
+      .findOne({ _id: id, activo: true })
+      .populate('autor', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil')
+      .populate('usuario', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil');
+
+    if (!publicacion) {
+      throw new NotFoundException('Publicación no encontrada');
+    }
+    return publicacion;
+  }
+
+  // GET comentarios paginados y ordenados (más recientes primero)
+  async obtenerComentarios(publicacionId: string, limit: number = 5, offset: number = 0) {
+    const publicacion = await this.publicacionModel
+      .findOne({ _id: publicacionId, activo: true })
+      .populate('comentarios.usuario', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil');
+
+    if (!publicacion) {
+      throw new NotFoundException('Publicación no encontrada');
+    }
+
+    const ordenados = [...(publicacion.comentarios || [])].sort(
+      (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime(),
+    );
+
+    const paginados = ordenados.slice(offset, offset + limit);
+
+    return {
+      comentarios: paginados,
+      total: ordenados.length,
+      hayMas: offset + limit < ordenados.length,
+    };
+  }
+
+  // POST agregar comentario
+  async agregarComentario(publicacionId: string, usuarioId: string, mensaje: string) {
+    if (!mensaje || !mensaje.trim()) {
+      throw new BadRequestException('El mensaje del comentario no puede estar vacío');
+    }
+
+    const publicacion = await this.publicacionModel.findOne({ _id: publicacionId, activo: true });
+    if (!publicacion) {
+      throw new NotFoundException('Publicación no encontrada');
+    }
+
+    publicacion.comentarios.push({
+      usuario: new Types.ObjectId(usuarioId),
+      mensaje: mensaje.trim(),
+      fecha: new Date(),
+      modificado: false,
+    });
+
+    await publicacion.save();
+    await publicacion.populate('comentarios.usuario', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil');
+
+    return publicacion.comentarios[publicacion.comentarios.length - 1];
+  }
+
+  // PUT editar comentario y marcar modificado: true
+  async editarComentario(
+    publicacionId: string,
+    comentarioId: string,
+    usuarioId: string,
+    mensaje: string,
+  ) {
+    if (!mensaje || !mensaje.trim()) {
+      throw new BadRequestException('El mensaje del comentario no puede estar vacío');
+    }
+
+    const publicacion = await this.publicacionModel.findOne({ _id: publicacionId, activo: true });
+    if (!publicacion) {
+      throw new NotFoundException('Publicación no encontrada');
+    }
+
+    const comentario = publicacion.comentarios.find(
+      (c: any) => c._id?.toString() === comentarioId,
+    );
+
+    if (!comentario) {
+      throw new NotFoundException('Comentario no encontrado');
+    }
+
+    if (comentario.usuario.toString() !== usuarioId) {
+      throw new ForbiddenException('No tenés permiso para editar este comentario');
+    }
+
+    comentario.mensaje = mensaje.trim();
+    comentario.modificado = true;
+
+    await publicacion.save();
+    await publicacion.populate('comentarios.usuario', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil');
+
+    return comentario;
+  }
+
+
 }
