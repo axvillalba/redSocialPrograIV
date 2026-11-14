@@ -16,8 +16,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private timerSesion: any = null;
   private sesionSub?: Subscription;
 
-  // Temporal para revisión: 30 segundos (valor final de entrega: 10 * 60 * 1000)
-  private readonly TIEMPO_AVISO_MS = 30 * 1000;
+  // Aviso exactamente 30 segundos antes de que expire el JWT
+  private readonly MARGEN_AVISO_MS = 30 * 1000;
 
   constructor(
     private authService: AuthService,
@@ -28,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sesionSub = this.authService.sesionActiva$.subscribe((activa) => {
       if (activa) {
-        this.iniciarContadorSesion();
+        this.programarAvisoDesdeToken();
       } else {
         this.limpiarContadorSesion();
         this.mostrarModalSesion = false;
@@ -37,14 +37,48 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  private iniciarContadorSesion(): void {
+  private obtenerExpiracionMs(token: string): number | null {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      return payload.exp ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private programarAvisoDesdeToken(): void {
     this.limpiarContadorSesion();
+    const token = this.authService.obtenerToken();
+    if (!token) return;
+
+    const expMs = this.obtenerExpiracionMs(token);
+    if (!expMs) return;
+
+    const tiempoRestanteMs = expMs - Date.now();
+    const tiempoHastaAvisoMs = tiempoRestanteMs - this.MARGEN_AVISO_MS;
+
+    if (tiempoRestanteMs <= 0) {
+      // Ya expiró
+      this.authService.cerrarSesion();
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (tiempoHastaAvisoMs <= 0) {
+      // Faltan 30 segundos o menos: mostrar aviso de inmediato
+      this.mostrarModalSesion = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.timerSesion = setTimeout(() => {
       if (this.authService.obtenerToken()) {
         this.mostrarModalSesion = true;
-        this.cdr.detectChanges(); // Fuerza a mostrar el modal en modo zoneless
+        this.cdr.detectChanges();
       }
-    }, this.TIEMPO_AVISO_MS);
+    }, tiempoHastaAvisoMs);
   }
 
   private limpiarContadorSesion(): void {
@@ -60,7 +94,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authService.refrescar().subscribe({
       next: () => {
-        // sesionActiva$ reinicia el contador de 30s automáticamente
+        // Al guardar el nuevo token, sesionActiva$ reprograma el aviso a exp - 30s
       },
       error: () => {
         this.authService.cerrarSesion();
