@@ -7,6 +7,12 @@ import { AuthService } from '../services/auth';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+
+  // Evitar adjuntar el JWT propio a APIs externas como Cloudinary
+  if (req.url.includes('api.cloudinary.com')) {
+    return next(req);
+  }
+
   const token = authService.obtenerToken();
 
   const authReq = token

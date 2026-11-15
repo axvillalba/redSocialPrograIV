@@ -1,4 +1,5 @@
 <app-navbar></app-navbar>
+
 <main class="detalle-container">
   <div class="top-nav-detalle">
     <a routerLink="/publicaciones" class="btn-volver">← VOLVER A LA GRIETA</a>
@@ -24,6 +25,35 @@
             <span class="post-fecha">🕒 {{ publicacion.createdAt | tiempoHace }}</span>
           </div>
         </div>
+
+        @if (puedeEliminarPublicacion) {
+          @if (!confirmandoBaja) {
+            <button
+              type="button"
+              class="btn-baja-publicacion"
+              (click)="confirmandoBaja = true">
+              🗑️ DAR DE BAJA PUBLICACIÓN
+            </button>
+          } @else {
+            <div class="confirm-baja-group">
+              <span>¿Dar de baja?</span>
+              <button
+                type="button"
+                class="btn-confirmar-baja"
+                [disabled]="eliminandoPublicacion"
+                (click)="confirmarBajaPublicacion()">
+                {{ eliminandoPublicacion ? 'ELIMINANDO...' : 'SÍ, ELIMINAR' }}
+              </button>
+              <button
+                type="button"
+                class="btn-cancelar-baja"
+                [disabled]="eliminandoPublicacion"
+                (click)="confirmandoBaja = false">
+                CANCELAR
+              </button>
+            </div>
+          }
+        }
       </header>
 
       <h1 class="post-titulo-grande">{{ publicacion.titulo }}</h1>

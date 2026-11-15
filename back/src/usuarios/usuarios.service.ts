@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, NotFoundException } from '@nestjs/common';
+import { Injectable, OnModuleInit, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -8,7 +8,7 @@ import { RolUsuario, Usuario, UsuarioDocument } from './schemas/usuario.schema.j
 export class UsuariosService {
   constructor(
     @InjectModel(Usuario.name) private usuarioModel: Model<Usuario>,
-  ) {}
+  ) { }
 
   // Obtener todos los usuarios registrados
   async obtenerTodos() {
@@ -45,15 +45,69 @@ export class UsuariosService {
   }
 
   async actualizarUsuario(id: string, datos: Partial<Usuario>): Promise<Usuario> {
-  const usuarioActualizado = await this.usuarioModel
-    .findByIdAndUpdate(id, datos, { new: true })
-    .select('-password') // Excluir la contraseña por seguridad
-    .exec();
+    const usuarioActualizado = await this.usuarioModel
+      .findByIdAndUpdate(id, datos, { new: true })
+      .select('-password') // Excluir la contraseña por seguridad
+      .exec();
 
-  if (!usuarioActualizado) {
-    throw new NotFoundException('Usuario no encontrado');
+    if (!usuarioActualizado) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return usuarioActualizado;
   }
 
-  return usuarioActualizado;
-}
+
+  async listarTodos(): Promise<any[]> {
+    return this.usuarioModel
+      .find()
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
+  async crearDesdeAdmin(datos: any): Promise<any> {
+    const { correo, nombreUsuario, password, perfil } = datos;
+
+    const existe = await this.usuarioModel.findOne({
+      $or: [
+        { correo: correo.toLowerCase() },
+        { nombreUsuario: nombreUsuario.toLowerCase() },
+      ],
+    });
+
+    if (existe) {
+      throw new BadRequestException('El correo o nombre de usuario ya existe');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const nuevo = new this.usuarioModel({
+      ...datos,
+      correo: correo.toLowerCase(),
+      nombreUsuario: nombreUsuario.toLowerCase(),
+      password: hashedPassword,
+      perfil: perfil === 'administrador' ? 'administrador' : 'usuario',
+      activo: true,
+    });
+
+    await nuevo.save();
+    const { password: _, ...usuarioSinPassword } = nuevo.toObject();
+    return usuarioSinPassword;
+  }
+
+  async cambiarEstadoActivo(id: string, activo: boolean): Promise<any> {
+    const usuario = await this.usuarioModel
+      .findByIdAndUpdate(id, { activo }, { new: true })
+      .select('-password');
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return usuario;
+  }
+
+  
 }

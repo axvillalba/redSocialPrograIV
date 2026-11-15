@@ -15,7 +15,7 @@ export class AuthService {
   private sesionActivaSubject = new BehaviorSubject<boolean>(!!this.obtenerToken());
   sesionActiva$ = this.sesionActivaSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   registrar(usuario: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/autenticacion/registro`, usuario).pipe(
@@ -34,7 +34,7 @@ export class AuthService {
     return this.http.post<any>(`${this.baseUrl}/autenticacion/autorizar`, { token }).pipe(
       tap((res) => {
         if (res?.usuario) {
-          localStorage.setItem(this.USER_KEY, JSON.stringify(res.usuario));
+          this.guardarSesion({ usuario: res.usuario });
         }
         this.sesionActivaSubject.next(true);
       })
@@ -53,7 +53,7 @@ export class AuthService {
     );
   }
 
-guardarSesion(respuesta: any): void {
+  guardarSesion(respuesta: any): void {
     if (respuesta?.token) {
       localStorage.setItem(this.TOKEN_KEY, respuesta.token);
     }
@@ -61,6 +61,8 @@ guardarSesion(respuesta: any): void {
     const usuarioServidor = respuesta?.usuario || (respuesta?._id || respuesta?.id ? respuesta : null);
     if (usuarioServidor) {
       const idUsuario = usuarioServidor._id || usuarioServidor.id;
+      const perfilUsuario = usuarioServidor.perfil || usuarioServidor.rol || 'usuario';
+
       const usuarioLimpio = {
         _id: idUsuario,
         id: idUsuario,
@@ -71,7 +73,9 @@ guardarSesion(respuesta: any): void {
         fechaNacimiento: usuarioServidor.fechaNacimiento || '',
         descripcion: usuarioServidor.descripcion || '',
         imagenPerfilUrl: usuarioServidor.imagenPerfilUrl || usuarioServidor.imagenPerfil || '',
-        rol: usuarioServidor.rol || 'usuario'
+        perfil: perfilUsuario,
+        rol: perfilUsuario,
+        activo: usuarioServidor.activo !== false
       };
 
       try {
@@ -108,5 +112,10 @@ guardarSesion(respuesta: any): void {
 
   actualizarUsuario(id: string, datos: any): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/usuarios/${id}`, datos);
+  }
+  
+  esAdministrador(): boolean {
+    const usuario = this.obtenerUsuarioActual();
+    return usuario?.perfil === 'administrador' || usuario?.rol === 'administrador';
   }
 }

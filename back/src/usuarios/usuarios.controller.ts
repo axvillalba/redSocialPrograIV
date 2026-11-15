@@ -1,27 +1,63 @@
-import { Controller, Get, Put, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { UsuariosService } from './usuarios.service.js';
+import { AdminGuard } from '../autenticacion/guards/admin.guard.js';
 
 @Controller('usuarios')
 export class UsuariosController {
-  constructor(private readonly usuariosService: UsuariosService) { }
+  constructor(private readonly usuariosService: UsuariosService) {}
 
-  // GET http://localhost:3000/usuarios -> Devuelve 200 OK con la lista de usuarios
+  // GET /usuarios -> Listado completo (solo administrador)
   @Get()
-  @HttpCode(HttpStatus.OK)
-  async obtenerTodos() {
-    return await this.usuariosService.obtenerTodos();
+  @UseGuards(AdminGuard)
+  async listarUsuarios() {
+    return this.usuariosService.listarTodos();
   }
 
-  // GET http://localhost:3000/usuarios/ID_DEL_USUARIO -> Devuelve 200 OK o 404 Not Found
+  // GET /usuarios/:id -> Obtener datos de un usuario para la página de Perfil
   @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  async obtenerPorId(@Param('id') id: string) {
-    return await this.usuariosService.obtenerPorId(id);
+  async obtenerUsuarioPorId(@Param('id') id: string) {
+    return this.usuariosService.obtenerPorId(id);
   }
 
+  // PUT y PATCH /usuarios/:id -> Actualizar datos o foto de perfil
   @Put(':id')
-  @HttpCode(HttpStatus.OK)
-  async actualizarUsuario(@Param('id') id: string, @Body() body: any) {
-    return await this.usuariosService.actualizarUsuario(id, body);
+  async actualizarUsuarioPut(@Param('id') id: string, @Body() body: any) {
+    return this.usuariosService.actualizarUsuario(id, body);
   }
-} 
+
+  @Patch(':id')
+  async actualizarUsuarioPatch(@Param('id') id: string, @Body() body: any) {
+    return this.usuariosService.actualizarUsuario(id, body);
+  }
+
+  // POST /usuarios -> Alta desde panel admin
+  @Post()
+  @UseGuards(AdminGuard)
+  async crearUsuario(@Body() body: any) {
+    return this.usuariosService.crearDesdeAdmin(body);
+  }
+
+  // DELETE /usuarios/:id -> Baja lógica
+  @Delete(':id')
+  @UseGuards(AdminGuard)
+  async deshabilitarUsuario(@Param('id') id: string) {
+    return this.usuariosService.cambiarEstadoActivo(id, false);
+  }
+
+  // POST /usuarios/:id/habilitar -> Alta lógica
+  @Post(':id/habilitar')
+  @UseGuards(AdminGuard)
+  async habilitarUsuario(@Param('id') id: string) {
+    return this.usuariosService.cambiarEstadoActivo(id, true);
+  }
+}

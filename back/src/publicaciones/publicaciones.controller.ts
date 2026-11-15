@@ -7,15 +7,20 @@ import {
   Body,
   Param,
   Query,
+  Headers,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PublicacionesService } from './publicaciones.service.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 
 @Controller('publicaciones')
 export class PublicacionesController {
-  constructor(private readonly publicacionesService: PublicacionesService) {}
+  constructor(
+    private readonly publicacionesService: PublicacionesService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -95,9 +100,24 @@ export class PublicacionesController {
   @HttpCode(HttpStatus.OK)
   async eliminar(
     @Param('id') id: string,
-    @Query('usuarioId') usuarioId: string,
+    @Query('usuarioId') usuarioId?: string,
+    @Headers('authorization') authHeader?: string,
   ) {
-    return await this.publicacionesService.eliminarLogico(id, usuarioId);
+    let idFinal = usuarioId || '';
+    let esAdmin = false;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.split(' ')[1];
+        const payload = await this.jwtService.verifyAsync(token);
+        idFinal = idFinal || payload.sub || payload.id || '';
+        esAdmin = (payload.perfil || payload.rol) === 'administrador';
+      } catch {
+        // Si el token no es válido o expiró, esAdmin permanece en false
+      }
+    }
+
+    return await this.publicacionesService.eliminarLogico(id, idFinal, esAdmin);
   }
 
   @Post(':id/like')

@@ -1,21 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
 })
 export class NavbarComponent implements OnInit {
   usuario: any = null;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.cargarUsuario();
+  }
+
+  get esAdmin(): boolean {
+    return this.authService.esAdministrador() || this.usuario?.perfil === 'administrador';
   }
 
   cargarUsuario(): void {
@@ -23,24 +31,23 @@ export class NavbarComponent implements OnInit {
     if (usuarioLocal) {
       try {
         this.usuario = JSON.parse(usuarioLocal);
-      } catch (e) {
+      } catch {
         this.usuario = null;
       }
     }
   }
 
   cerrarSesion(): void {
-    localStorage.clear();
+    this.authService.cerrarSesion();
     this.router.navigate(['/login']);
   }
 
   obtenerAvatar(): string {
     if (!this.usuario) return this.avatarGenerico();
 
-    // Mapeo exhaustivo para garantizar lectura tras el Login
-    const img = this.usuario.imagenPerfilUrl || 
-                this.usuario.imagenPerfil || 
-                this.usuario.fotoPerfil || 
+    const img = this.usuario.imagenPerfilUrl ||
+                this.usuario.imagenPerfil ||
+                this.usuario.fotoPerfil ||
                 this.usuario.avatar ||
                 this.usuario.imagenUrl;
 

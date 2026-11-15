@@ -21,6 +21,8 @@ export class PublicacionDetalleComponent implements OnInit {
 
   cargandoPublicacion: boolean = true;
   procesandoLike: boolean = false;
+  confirmandoBaja: boolean = false;
+  eliminandoPublicacion: boolean = false;
 
   // Estado de comentarios y paginación
   comentarios: any[] = [];
@@ -65,6 +67,15 @@ export class PublicacionDetalleComponent implements OnInit {
     return this.publicacion?.autor || this.publicacion?.usuario || {};
   }
 
+  get puedeEliminarPublicacion(): boolean {
+    if (!this.publicacion) return false;
+    if (this.authService.esAdministrador()) return true;
+
+    const idUser = this.usuarioActual?._id || this.usuarioActual?.id;
+    const idAutor = this.autorPublicacion?._id || this.autorPublicacion;
+    return !!idUser && idUser === idAutor;
+  }
+
   get dioMeGusta(): boolean {
     const idUser = this.usuarioActual?._id || this.usuarioActual?.id;
     if (!idUser || !this.publicacion?.meGusta) return false;
@@ -92,6 +103,26 @@ export class PublicacionDetalleComponent implements OnInit {
     });
   }
 
+  confirmarBajaPublicacion(): void {
+    const idUser = this.usuarioActual?._id || this.usuarioActual?.id;
+    if (!idUser || !this.publicacionId || this.eliminandoPublicacion) return;
+
+    this.eliminandoPublicacion = true;
+    this.cdr.detectChanges();
+
+    this.publicacionesService.eliminarPublicacion(this.publicacionId, idUser).subscribe({
+      next: () => {
+        this.router.navigate(['/publicaciones']);
+      },
+      error: (err) => {
+        console.error('Error al dar de baja la publicación:', err);
+        this.eliminandoPublicacion = false;
+        this.confirmandoBaja = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   cargarComentarios(reiniciar: boolean = false): void {
     if (reiniciar) {
       this.offsetComentarios = 0;
@@ -106,7 +137,6 @@ export class PublicacionDetalleComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           const nuevos = res.comentarios || [];
-          // Si es primera carga reemplaza; si es "Cargar más" acumula debajo sin perder los anteriores
           this.comentarios = reiniciar ? nuevos : [...this.comentarios, ...nuevos];
           this.totalComentarios = res.total ?? this.comentarios.length;
           this.hayMasComentarios = !!res.hayMas;
@@ -136,8 +166,8 @@ export class PublicacionDetalleComponent implements OnInit {
 
     this.publicacionesService.agregarComentario(this.publicacionId, usuarioId, texto).subscribe({
       next: (comentarioCreado: any) => {
-        
-        this.comentarios = [comentarioCreado, ...this.comentarios];
+        // Más antiguos arriba, más recientes abajo
+        this.comentarios = [...this.comentarios, comentarioCreado];
         this.totalComentarios++;
         this.offsetComentarios++;
         this.nuevoComentario = '';

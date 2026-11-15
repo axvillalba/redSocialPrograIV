@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -18,7 +18,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       login: ['', Validators.required],
@@ -33,15 +34,25 @@ export class LoginComponent {
     }
 
     this.errorMensaje = '';
+    this.cdr.detectChanges();
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (res: any) => {
-        // Guarda el token ('hextech_token'), normaliza 'usuario' y arranca el timer de 10 min
         this.authService.guardarSesion(res);
         this.router.navigate(['/publicaciones']);
       },
       error: (err) => {
-        this.errorMensaje = err.error?.message || 'Usuario o contraseña incorrectos.';
+        const msgBackend = err.error?.message;
+
+        if (Array.isArray(msgBackend)) {
+          this.errorMensaje = msgBackend.join('. ');
+        } else if (typeof msgBackend === 'string' && msgBackend.trim() !== '') {
+          this.errorMensaje = msgBackend;
+        } else {
+          this.errorMensaje = 'Usuario o contraseña incorrectos.';
+        }
+
+        this.cdr.detectChanges();
       }
     });
   }

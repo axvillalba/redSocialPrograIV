@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException} from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Publicacion } from './schemas/publicacion.schema.js';
@@ -8,7 +8,7 @@ import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 export class PublicacionesService {
   constructor(
     @InjectModel(Publicacion.name) private readonly publicacionModel: Model<Publicacion>,
-  ) {}
+  ) { }
 
   async crear(dto: CrearPublicacionDto): Promise<Publicacion> {
     const idAutor = dto.autor || (dto as any).usuario;
@@ -68,14 +68,14 @@ export class PublicacionesService {
     return resultados.slice(offset, offset + limit);
   }
 
-  async eliminarLogico(publicacionId: string, usuarioId: string) {
+  async eliminarLogico(publicacionId: string, usuarioId: string, esAdmin: boolean = false) {
     const pub = await this.publicacionModel.findById(publicacionId);
     if (!pub) throw new NotFoundException('Publicación no encontrada');
 
     const creador = (pub as any).autor || (pub as any).usuario;
     const autorId = typeof creador === 'string' ? creador : creador?._id?.toString() || creador?.toString();
 
-    if (autorId !== usuarioId) {
+    if (!esAdmin && autorId !== usuarioId) {
       throw new UnauthorizedException('No tienes permisos para eliminar esta publicación');
     }
 
@@ -207,6 +207,114 @@ export class PublicacionesService {
     await publicacion.populate('comentarios.usuario', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil');
 
     return comentario;
+  }
+
+  private construirFiltroFechas(desde?: string, hasta?: string) {
+    const filtro: any = {};
+    if (desde || hasta) {
+      filtro.createdAt = {};
+      if (desde) {
+        filtro.createdAt.$gte = new Date(`${desde}T00:00:00.000Z`);
+      }
+      if (hasta) {
+        filtro.createdAt.$lte = new Date(`${hasta}T23:59:59.999Z`);
+      }
+    }
+    return filtro;
+  }
+
+  // 1. Cantidad de publicaciones realizadas por cada usuario en un lapso de tiempo
+  async estadisticaPublicacionesPorUsuario(desde?: string, hasta?: string) {
+    const matchFecha = this.construirFiltroFechas(desde, hasta);
+
+    return this.publicacionModel.aggregate([
+      { $match: matchFecha },
+      {
+        $group: {
+          _id: '$autor', // (Si en tu schema el campo se llama 'usuario', cambiá '$autor' por '$usuario')
+          cantidad: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: 'usuarios',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'usuarioInfo',
+        },
+      },
+      { $unwind: { path: '$usuarioInfo', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 0,
+          usuarioId: '$_id',
+          nombreUsuario: { $ifNull: ['$usuarioInfo.nombreUsuario', 'Desconocido'] },
+          cantidad: 1,
+        },
+      },
+      { $sort: { cantidad: -1 } },
+    ]);
+  }
+
+  // 2. Cantidad de comentarios realizados en un lapso de tiempo (agrupado por día)
+  async estadisticaComentariosPorTiempo(desde?: string, hasta?: string) {
+    const matchComentarioFecha: any = {};
+    if (desde) {
+      matchComentarioFecha['comentarios.fecha'] = {
+        ...matchComentarioFecha['comentarios.fecha'],
+        $gte: new Date(`${desde}T00:00:00.000Z`),
+      };
+    }
+    if (hasta) {
+      matchComentarioFecha['comentarios.fecha'] = {
+        ...matchComentarioFecha['comentarios.fecha'],
+        $lte: new Date(`${hasta}T23:59:59.999Z`),
+      };
+    }
+
+    const pipeline: any[] = [{ $unwind: '$comentarios' }];
+    if (Object.keys(matchComentarioFecha).length > 0) {
+      pipeline.push({ $match: matchComentarioFecha });
+    }
+
+    pipeline.push(
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$comentarios.fecha' },
+          },
+          cantidad: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          fecha: '$_id',
+          cantidad: 1,
+        },
+      },
+      { $sort: { fecha: 1 } }
+    );
+
+    return this.publicacionModel.aggregate(pipeline);
+  }
+
+  // 3. Cantidad de comentarios en cada publicación en un lapso de tiempo
+  async estadisticaComentariosPorPublicacion(desde?: string, hasta?: string) {
+    const matchFecha = this.construirFiltroFechas(desde, hasta);
+
+    return this.publicacionModel.aggregate([
+      { $match: matchFecha },
+      {
+        $project: {
+          _id: 0,
+          publicacionId: '$_id',
+          titulo: '$titulo',
+          cantidadComentarios: { $size: { $ifNull: ['$comentarios', []] } },
+        },
+      },
+      { $sort: { cantidadComentarios: -1 } },
+    ]);
   }
 
 

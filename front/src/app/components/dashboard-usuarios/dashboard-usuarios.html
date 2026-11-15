@@ -1,0 +1,189 @@
+<app-navbar></app-navbar>
+
+<main class="admin-usuarios-container">
+  <header class="admin-header">
+    <div>
+      <h1 class="titulo-admin">PANEL DE ADMINISTRACIÓN — USUARIOS</h1>
+      <p class="subtitulo-admin">Gestión de cuentas, roles de acceso y estado de invocadores</p>
+    </div>
+  </header>
+
+  @if (mensajeExito) {
+    <div class="alerta-hextech exito">✅ {{ mensajeExito }}</div>
+  }
+  @if (mensajeError) {
+    <div class="alerta-hextech error">⚠️ {{ mensajeError }}</div>
+  }
+
+  <div class="admin-grid">
+    <!-- FORMULARIO DE ALTA DE USUARIO -->
+    <section class="panel-card form-panel">
+      <h2 class="panel-titulo">REGISTRAR NUEVO USUARIO</h2>
+
+      <form [formGroup]="usuarioForm" (ngSubmit)="crearUsuario()" class="hextech-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre *</label>
+            <input id="nombre" type="text" formControlName="nombre" placeholder="Ej: Vi" />
+            @if (usuarioForm.get('nombre')?.touched && usuarioForm.get('nombre')?.invalid) {
+              <small class="error-campo">Ingresá un nombre válido (mín. 2 caracteres).</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">Apellido *</label>
+            <input id="apellido" type="text" formControlName="apellido" placeholder="Ej: Lanes" />
+            @if (usuarioForm.get('apellido')?.touched && usuarioForm.get('apellido')?.invalid) {
+              <small class="error-campo">Ingresá un apellido válido (mín. 2 caracteres).</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombreUsuario">Nombre de Usuario *</label>
+            <input id="nombreUsuario" type="text" formControlName="nombreUsuario" placeholder="Ej: piltover_enforcer" />
+            @if (usuarioForm.get('nombreUsuario')?.touched && usuarioForm.get('nombreUsuario')?.invalid) {
+              <small class="error-campo">Mínimo 3 caracteres.</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="fechaNacimiento">Fecha de Nacimiento *</label>
+            <input id="fechaNacimiento" type="date" formControlName="fechaNacimiento" />
+            @if (usuarioForm.get('fechaNacimiento')?.touched && usuarioForm.get('fechaNacimiento')?.invalid) {
+              <small class="error-campo">Seleccioná la fecha de nacimiento.</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="correo">Correo Electrónico *</label>
+          <input id="correo" type="email" formControlName="correo" placeholder="invocador@piltover.com" />
+          @if (usuarioForm.get('correo')?.touched && usuarioForm.get('correo')?.invalid) {
+            <small class="error-campo">Ingresá un correo electrónico válido.</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña *</label>
+          <input id="password" type="password" formControlName="password" placeholder="Mín. 8 caracteres, 1 mayúscula y 1 número" />
+          @if (usuarioForm.get('password')?.touched && usuarioForm.get('password')?.invalid) {
+            <small class="error-campo">Debe tener al menos 8 caracteres, una mayúscula y un número.</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="imagenPerfilUrl">URL Imagen de Perfil (Opcional)</label>
+          <input id="imagenPerfilUrl" type="url" formControlName="imagenPerfilUrl" placeholder="https://..." />
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción / Biografía *</label>
+          <textarea id="descripcion" rows="2" formControlName="descripcion" placeholder="Breve descripción del invocador..."></textarea>
+          @if (usuarioForm.get('descripcion')?.touched && usuarioForm.get('descripcion')?.invalid) {
+            <small class="error-campo">La descripción es obligatoria (máx. 250 caracteres).</small>
+          }
+        </div>
+
+        <!-- RADIO BUTTONS PERFIL -->
+        <div class="form-group">
+          <label>Perfil de Acceso *</label>
+          <div class="radio-perfil-group">
+            <label class="radio-card" [class.seleccionado]="usuarioForm.get('perfil')?.value === 'usuario'">
+              <input type="radio" formControlName="perfil" value="usuario" />
+              <span>⚔️ Usuario</span>
+            </label>
+
+            <label class="radio-card" [class.seleccionado]="usuarioForm.get('perfil')?.value === 'administrador'">
+              <input type="radio" formControlName="perfil" value="administrador" />
+              <span>🛡️ Administrador</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-crear-usuario" [disabled]="guardandoUsuario">
+          {{ guardandoUsuario ? 'CREANDO INVOCADOR...' : '+ DAR DE ALTA USUARIO' }}
+        </button>
+      </form>
+    </section>
+
+    <!-- LISTADO DE USUARIOS -->
+    <section class="panel-card lista-panel">
+      <div class="lista-header">
+        <h2 class="panel-titulo">INVOCADORES REGISTRADOS ({{ usuarios.length }})</h2>
+        <button type="button" class="btn-refrescar" (click)="cargarUsuarios()" [disabled]="cargandoLista">
+          ↻ ACTUALIZAR
+        </button>
+      </div>
+
+      @if (cargandoLista) {
+        <div class="spinner-container">
+          <div class="spinner-hextech"></div>
+          <p>CARGANDO INVOCADORES...</p>
+        </div>
+      } @else if (usuarios.length === 0) {
+        <p class="sin-datos">No hay usuarios registrados en el sistema.</p>
+      } @else {
+        <div class="tabla-responsive">
+          <table class="tabla-hextech">
+            <thead>
+              <tr>
+                <th>Invocador</th>
+                <th>Correo</th>
+                <th>Perfil</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of usuarios; track u._id) {
+                <tr [class.fila-deshabilitada]="u.activo === false">
+                  <td>
+                    <div class="celda-usuario">
+                      <img [src]="obtenerAvatar(u)" alt="Avatar" class="avatar-mini" />
+                      <div>
+                        <strong class="nombre-completo">{{ u.nombre }} {{ u.apellido }}</strong>
+                        <span class="username-sub">&#64;{{ u.nombreUsuario }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="celda-correo">{{ u.correo }}</td>
+                  <td>
+                    <span class="badge-perfil" [class.es-admin]="u.perfil === 'administrador'">
+                      {{ u.perfil === 'administrador' ? '🛡️ ADMIN' : '⚔️ USUARIO' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge-estado" [class.activo]="u.activo !== false" [class.inactivo]="u.activo === false">
+                      {{ u.activo !== false ? 'HABILITADO' : 'DESHABILITADO' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if ((u._id || u.id) === usuarioActualId) {
+                      <span class="etiqueta-tu-cuenta">Sesión actual</span>
+                    } @else {
+                      <button
+                        type="button"
+                        class="btn-accion-estado"
+                        [class.btn-deshabilitar]="u.activo !== false"
+                        [class.btn-habilitar]="u.activo === false"
+                        [disabled]="procesandoId === (u._id || u.id)"
+                        (click)="toggleEstadoUsuario(u)">
+                        @if (procesandoId === (u._id || u.id)) {
+                          PROCESANDO...
+                        } @else {
+                          {{ u.activo !== false ? 'DESHABILITAR' : 'HABILITAR' }}
+                        }
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</main>
