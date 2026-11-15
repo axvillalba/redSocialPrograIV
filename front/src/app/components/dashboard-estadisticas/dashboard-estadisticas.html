@@ -1,0 +1,123 @@
+<app-navbar></app-navbar>
+
+<main class="stats-container">
+  <header class="stats-header">
+    <div>
+      <h1 class="stats-titulo">ESTADÍSTICAS DE LA GRIETA</h1>
+      <p class="stats-subtitulo">Métricas de actividad de invocadores, publicaciones y comentarios</p>
+    </div>
+
+    <!-- SELECTOR DE RANGO DE FECHAS -->
+    <div class="filtro-fechas-bar">
+      <div class="atajos-rango">
+        <button
+          type="button"
+          class="btn-rango"
+          [class.activo]="rangoActivo === '7d'"
+          (click)="aplicarRangoRapido('7d')">
+          7 DÍAS
+        </button>
+        <button
+          type="button"
+          class="btn-rango"
+          [class.activo]="rangoActivo === '30d'"
+          (click)="aplicarRangoRapido('30d')">
+          30 DÍAS
+        </button>
+        <button
+          type="button"
+          class="btn-rango"
+          [class.activo]="rangoActivo === 'todo'"
+          (click)="aplicarRangoRapido('todo')">
+          TODO
+        </button>
+      </div>
+
+      <div class="inputs-fechas">
+        <div class="campo-fecha">
+          <label for="desde">Desde</label>
+          <input id="desde" type="date" [(ngModel)]="fechaDesde" />
+        </div>
+        <div class="campo-fecha">
+          <label for="hasta">Hasta</label>
+          <input id="hasta" type="date" [(ngModel)]="fechaHasta" />
+        </div>
+        <button type="button" class="btn-filtrar" (click)="filtrarPersonalizado()">
+          FILTRAR
+        </button>
+      </div>
+    </div>
+  </header>
+
+  @if (errorMensaje) {
+    <div class="alerta-error">⚠️ {{ errorMensaje }}</div>
+  }
+
+  @if (cargando) {
+    <div class="spinner-container">
+      <div class="spinner-hextech"></div>
+      <p>ANALIZANDO REGISTROS HEXTECH...</p>
+    </div>
+  } @else {
+    <!-- TARJETAS KPI RESUMEN -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-label">PUBLICACIONES EN EL PERÍODO</span>
+        <strong class="kpi-valor cian">{{ totalPublicacionesRango }}</strong>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">COMENTARIOS EN EL PERÍODO</span>
+        <strong class="kpi-valor dorado">{{ totalComentariosRango }}</strong>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">PUBLICACIÓN MÁS COMENTADA</span>
+        <strong class="kpi-valor texto-top">{{ publicacionMasComentada }}</strong>
+      </div>
+    </section>
+
+    <!-- GRILLA DE 3 GRÁFICOS DISTINTOS -->
+    <section class="charts-grid">
+      <!-- 1. Gráfico de Barras -->
+      <article class="chart-card">
+        <h2 class="chart-titulo">1. PUBLICACIONES POR INVOCADOR</h2>
+        <p class="chart-desc">Cantidad de publicaciones realizadas por cada usuario en el lapso seleccionado</p>
+
+        @if (datosPubsPorUsuario.length === 0) {
+          <div class="sin-datos-chart">No hay publicaciones registradas en este rango de fechas.</div>
+        } @else {
+          <div class="canvas-wrapper">
+            <canvas #chartPubsUsuario></canvas>
+          </div>
+        }
+      </article>
+
+      <!-- 2. Gráfico de Líneas -->
+      <article class="chart-card">
+        <h2 class="chart-titulo">2. EVOLUCIÓN DE COMENTARIOS</h2>
+        <p class="chart-desc">Cantidad de comentarios realizados a lo largo del tiempo</p>
+
+        @if (datosComentariosPorTiempo.length === 0) {
+          <div class="sin-datos-chart">No hay comentarios registrados en este rango de fechas.</div>
+        } @else {
+          <div class="canvas-wrapper">
+            <canvas #chartComentariosTiempo></canvas>
+          </div>
+        }
+      </article>
+
+      <!-- 3. Gráfico de Dona / Torta -->
+      <article class="chart-card chart-card-full">
+        <h2 class="chart-titulo">3. COMENTARIOS POR PUBLICACIÓN</h2>
+        <p class="chart-desc">Distribución de comentarios recibidos en cada publicación del período</p>
+
+        @if (datosComentariosPorPub.length === 0) {
+          <div class="sin-datos-chart">No hay datos de publicaciones para este rango de fechas.</div>
+        } @else {
+          <div class="canvas-wrapper canvas-dona">
+            <canvas #chartComentariosPub></canvas>
+          </div>
+        }
+      </article>
+    </section>
+  }
+</main>

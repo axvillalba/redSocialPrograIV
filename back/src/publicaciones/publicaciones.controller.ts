@@ -10,10 +10,12 @@ import {
   Headers,
   HttpCode,
   HttpStatus,
+  UseGuards
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PublicacionesService } from './publicaciones.service.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
+import { AdminGuard } from '../autenticacion/guards/admin.guard.js';
 
 @Controller('publicaciones')
 export class PublicacionesController {
@@ -44,6 +46,36 @@ export class PublicacionesController {
       offset: Number(offset),
       usuarioId: idFiltrar,
     });
+  }
+
+@Get('estadisticas/publicaciones-por-usuario')
+  @UseGuards(AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  async estadisticaPublicacionesPorUsuario(
+    @Query('desde') desde?: string,
+    @Query('hasta') hasta?: string,
+  ) {
+    return await this.publicacionesService.estadisticaPublicacionesPorUsuario(desde, hasta);
+  }
+
+  @Get('estadisticas/comentarios-por-tiempo')
+  @UseGuards(AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  async estadisticaComentariosPorTiempo(
+    @Query('desde') desde?: string,
+    @Query('hasta') hasta?: string,
+  ) {
+    return await this.publicacionesService.estadisticaComentariosPorTiempo(desde, hasta);
+  }
+
+  @Get('estadisticas/comentarios-por-publicacion')
+  @UseGuards(AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  async estadisticaComentariosPorPublicacion(
+    @Query('desde') desde?: string,
+    @Query('hasta') hasta?: string,
+  ) {
+    return await this.publicacionesService.estadisticaComentariosPorPublicacion(desde, hasta);
   }
 
   // --- COMENTARIOS (Deben ir antes de @Get(':id')) ---

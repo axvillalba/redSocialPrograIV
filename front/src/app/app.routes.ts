@@ -7,6 +7,7 @@ import { PerfilComponent } from './components/perfil/perfil';
 import { CargandoComponent } from './components/cargando/cargando';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { DashboardEstadisticasComponent } from './components/dashboard-estadisticas/dashboard-estadisticas';
 import { DashboardUsuariosComponent } from './components/dashboard-usuarios/dashboard-usuarios';
 
 export const routes: Routes = [
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'publicaciones', component: PublicacionesPageComponent, canActivate: [authGuard] },
   { path: 'publicacion/:id', component: PublicacionDetalleComponent, canActivate: [authGuard] },
   { path: 'dashboard/usuarios', component: DashboardUsuariosComponent, canActivate: [adminGuard]},
+  { path: 'dashboard/estadisticas', component: DashboardEstadisticasComponent, canActivate: [adminGuard] },  
   { path: 'perfil', component: PerfilComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

@@ -76,4 +76,26 @@ obtenerPublicaciones(params: {
       { usuarioId, mensaje }
     );
   }
+
+obtenerEstadisticaPublicacionesPorUsuario(desde?: string, hasta?: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (desde) params = params.set('desde', desde);
+    if (hasta) params = params.set('hasta', hasta);
+    return this.http.get<any[]>(`${this.baseUrl}/publicaciones/estadisticas/publicaciones-por-usuario`, { params });
+  }
+
+  obtenerEstadisticaComentariosPorTiempo(desde?: string, hasta?: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (desde) params = params.set('desde', desde);
+    if (hasta) params = params.set('hasta', hasta);
+    return this.http.get<any[]>(`${this.baseUrl}/publicaciones/estadisticas/comentarios-por-tiempo`, { params });
+  }
+
+  obtenerEstadisticaComentariosPorPublicacion(desde?: string, hasta?: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (desde) params = params.set('desde', desde);
+    if (hasta) params = params.set('hasta', hasta);
+    return this.http.get<any[]>(`${this.baseUrl}/publicaciones/estadisticas/comentarios-por-publicacion`, { params });
+  }
+
 }
