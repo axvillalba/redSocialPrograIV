@@ -61,7 +61,7 @@
           <label for="correo">Correo Electrónico *</label>
           <input id="correo" type="email" formControlName="correo" placeholder="invocador@piltover.com" />
           @if (usuarioForm.get('correo')?.touched && usuarioForm.get('correo')?.invalid) {
-            <small class="error-campo">Ingresá un correo electrónico válido.</small>
+            <small class="error-campo">Ingresá un correo válido con dominio completo (ej: usuario&#64;dominio.com).</small>
           }
         </div>
 
@@ -73,9 +73,30 @@
           }
         </div>
 
+        <!-- CARGA DE IMAGEN DE PERFIL DESDE ORDENADOR -> CLOUDINARY -->
         <div class="form-group">
-          <label for="imagenPerfilUrl">URL Imagen de Perfil (Opcional)</label>
-          <input id="imagenPerfilUrl" type="url" formControlName="imagenPerfilUrl" placeholder="https://..." />
+          <label for="imagenPerfilFile">Imagen de Perfil (Opcional)</label>
+          <div class="upload-box">
+            <input
+              #fileInput
+              id="imagenPerfilFile"
+              type="file"
+              accept="image/*"
+              (change)="onArchivoSeleccionado($event)"
+            />
+
+            @if (imagenPreviewUrl) {
+              <div class="preview-wrapper">
+                <img [src]="imagenPreviewUrl" alt="Vista previa" class="preview-avatar" />
+                <div class="preview-info">
+                  <span>{{ archivoSeleccionado?.name }}</span>
+                  <button type="button" class="btn-quitar-img" (click)="limpiarImagenSeleccionada()">
+                    ✕ Quitar
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
         </div>
 
         <div class="form-group">
@@ -103,7 +124,13 @@
         </div>
 
         <button type="submit" class="btn-crear-usuario" [disabled]="guardandoUsuario">
-          {{ guardandoUsuario ? 'CREANDO INVOCADOR...' : '+ DAR DE ALTA USUARIO' }}
+          @if (subiendoImagen) {
+            SUBIENDO IMAGEN A CLOUDINARY...
+          } @else if (guardandoUsuario) {
+            CREANDO INVOCADOR...
+          } @else {
+            + DAR DE ALTA USUARIO
+          }
         </button>
       </form>
     </section>
@@ -133,7 +160,7 @@
                 <th>Correo</th>
                 <th>Perfil</th>
                 <th>Estado</th>
-                <th>Acción</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -163,19 +190,26 @@
                     @if ((u._id || u.id) === usuarioActualId) {
                       <span class="etiqueta-tu-cuenta">Sesión actual</span>
                     } @else {
-                      <button
-                        type="button"
-                        class="btn-accion-estado"
-                        [class.btn-deshabilitar]="u.activo !== false"
-                        [class.btn-habilitar]="u.activo === false"
-                        [disabled]="procesandoId === (u._id || u.id)"
-                        (click)="toggleEstadoUsuario(u)">
-                        @if (procesandoId === (u._id || u.id)) {
-                          PROCESANDO...
-                        } @else {
+                      <div class="acciones-grupo">
+                        <button
+                          type="button"
+                          class="btn-accion-rol"
+                          [class.es-promover]="u.perfil !== 'administrador'"
+                          [disabled]="procesandoId === (u._id || u.id)"
+                          (click)="cambiarRolUsuario(u)">
+                          {{ u.perfil === 'administrador' ? '⚔️ HACER USUARIO' : '🛡️ HACER ADMIN' }}
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn-accion-estado"
+                          [class.btn-deshabilitar]="u.activo !== false"
+                          [class.btn-habilitar]="u.activo === false"
+                          [disabled]="procesandoId === (u._id || u.id)"
+                          (click)="toggleEstadoUsuario(u)">
                           {{ u.activo !== false ? 'DESHABILITAR' : 'HABILITAR' }}
-                        }
-                      </button>
+                        </button>
+                      </div>
                     }
                   </td>
                 </tr>

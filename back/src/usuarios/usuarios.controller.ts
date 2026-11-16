@@ -60,4 +60,14 @@ export class UsuariosController {
   async habilitarUsuario(@Param('id') id: string) {
     return this.usuariosService.cambiarEstadoActivo(id, true);
   }
+
+  // PATCH /usuarios/:id/perfil -> Cambiar rol entre 'usuario' y 'administrador'
+  @Patch(':id/perfil')
+  @UseGuards(AdminGuard)
+  async cambiarPerfil(
+    @Param('id') id: string,
+    @Body('perfil') perfil: string,
+  ) {
+    return this.usuariosService.cambiarPerfil(id, perfil);
+  }
 }

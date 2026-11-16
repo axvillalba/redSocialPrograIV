@@ -365,6 +365,111 @@
   animation: spin 0.9s linear infinite;
 }
 
+.upload-box {
+  background: #010a13;
+  border: 1px dashed #785a28;
+  border-radius: 3px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  input[type='file'] {
+    border: none;
+    padding: 0;
+    font-size: 0.82rem;
+    color: #cdbe91;
+    cursor: pointer;
+
+    &::file-selector-button {
+      background: rgba(0, 207, 200, 0.12);
+      border: 1px solid #00cfc8;
+      color: #00cfc8;
+      padding: 5px 10px;
+      margin-right: 10px;
+      border-radius: 2px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  }
+}
+
+.preview-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(120, 90, 40, 0.3);
+
+  .preview-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #00cfc8;
+  }
+
+  .preview-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: #f0e6d2;
+    word-break: break-all;
+  }
+
+  .btn-quitar-img {
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid rgba(232, 64, 87, 0.5);
+    color: #ff6b81;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+}
+
+.acciones-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn-accion-rol {
+  padding: 6px 10px;
+  border-radius: 2px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  background: rgba(160, 155, 140, 0.1);
+  border: 1px solid #785a28;
+  color: #cdbe91;
+  transition: all 0.2s ease;
+
+  &.es-promover {
+    background: rgba(200, 170, 110, 0.14);
+    border-color: #c8aa6e;
+    color: #f0e6d2;
+
+    &:hover:not([disabled]) {
+      background: rgba(200, 170, 110, 0.3);
+      border-color: #00cfc8;
+      color: #00cfc8;
+    }
+  }
+
+  &:hover:not([disabled]) {
+    background: rgba(200, 170, 110, 0.22);
+  }
+
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

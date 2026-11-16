@@ -109,5 +109,20 @@ export class UsuariosService {
     return usuario;
   }
 
-  
+async cambiarPerfil(id: string, perfil: string): Promise<any> {
+    if (!['usuario', 'administrador'].includes(perfil)) {
+      throw new BadRequestException('El perfil debe ser "usuario" o "administrador"');
+    }
+
+    const actualizado = await this.usuarioModel
+      .findByIdAndUpdate(id, { perfil }, { new: true })
+      .select('-password')
+      .exec();
+
+    if (!actualizado) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return actualizado;
+  }  
 }
