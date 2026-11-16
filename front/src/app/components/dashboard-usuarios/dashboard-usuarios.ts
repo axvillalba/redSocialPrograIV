@@ -4,11 +4,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { NavbarComponent } from '../navbar/navbar';
 import { UsuariosService } from '../../services/usuarios';
 import { AuthService } from '../../services/auth';
+import {RolEtiquetaPipe} from "../../pipes/rol-etiqueta.pipe";
 
 @Component({
   selector: 'app-dashboard-usuarios',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, RolEtiquetaPipe],
   templateUrl: './dashboard-usuarios.html',
   styleUrl: './dashboard-usuarios.scss'
 })

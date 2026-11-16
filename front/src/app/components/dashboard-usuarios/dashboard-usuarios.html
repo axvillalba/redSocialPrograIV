@@ -177,8 +177,7 @@
                   </td>
                   <td class="celda-correo">{{ u.correo }}</td>
                   <td>
-                    <span class="badge-perfil" [class.es-admin]="u.perfil === 'administrador'">
-                      {{ u.perfil === 'administrador' ? '🛡️ ADMIN' : '⚔️ USUARIO' }}
+                   <span class="badge-perfil" [class.es-admin]="u.perfil === 'administrador'">{{ u.perfil | rolEtiqueta }}
                     </span>
                   </td>
                   <td>

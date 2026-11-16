@@ -20,9 +20,10 @@ export class AutenticacionService {
       id: usuario._id.toString(),
       correo: usuario.correo,
       nombreUsuario: usuario.nombreUsuario,
+      perfil: usuario.perfil || usuario.rol || 'usuario',
       rol: usuario.perfil || usuario.rol || 'usuario',
     };
-    return this.jwtService.signAsync(payload, { expiresIn: '15m' });
+    return this.jwtService.signAsync(payload, { expiresIn: '10m' });
   }
 
   async registrar(registroDto: RegistroDto) {
@@ -126,15 +127,16 @@ export class AutenticacionService {
         id: payload.id || payload.sub,
         correo: payload.correo,
         nombreUsuario: payload.nombreUsuario,
+        perfil: payload.perfil || payload.rol || 'usuario',
         rol: payload.rol || 'usuario',
       };
 
-      const nuevoToken = await this.jwtService.signAsync(nuevoPayload, { expiresIn: '15m' });
+      const nuevoToken = await this.jwtService.signAsync(nuevoPayload, { expiresIn: '10m' });
       return {
         token: nuevoToken,
       };
     } catch {
-      throw new UnauthorizedException('Token inválido o expirado');
+      throw new UnauthorizedException('Token inválido o expirado');   
     }
   }
 }

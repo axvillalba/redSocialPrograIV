@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ModalComponent } from '../modal/modal';
 import { TiempoHacePipe } from '../../pipes/tiempo-hace.pipe';
+import { TruncarTextoPipe } from '../../pipes/truncar-texto.pipe';
 import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-publicacion',
   standalone: true,
-  imports: [CommonModule, ModalComponent, TiempoHacePipe, RouterLink],
+  imports: [CommonModule, ModalComponent, TiempoHacePipe, TruncarTextoPipe, RouterLink],
   templateUrl: './publicaciones.html',
   styleUrls: ['./publicaciones.scss'],
 })

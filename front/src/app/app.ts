@@ -14,6 +14,7 @@ import { ModalComponent } from './components/modal/modal';
 export class AppComponent implements OnInit, OnDestroy {
   mostrarModalSesion = false;
   private timerSesion: any = null;
+  private timerExpiracionFinal: any = null;
   private sesionSub?: Subscription;
 
   // Aviso exactamente 30 segundos antes de que expire el JWT
@@ -30,7 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (activa) {
         this.programarAvisoDesdeToken();
       } else {
-        this.limpiarContadorSesion();
+        this.limpiarContadoresSesion();
         this.mostrarModalSesion = false;
         this.cdr.detectChanges();
       }
@@ -49,7 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private programarAvisoDesdeToken(): void {
-    this.limpiarContadorSesion();
+    this.limpiarContadoresSesion();
     const token = this.authService.obtenerToken();
     if (!token) return;
 
@@ -60,19 +61,25 @@ export class AppComponent implements OnInit, OnDestroy {
     const tiempoHastaAvisoMs = tiempoRestanteMs - this.MARGEN_AVISO_MS;
 
     if (tiempoRestanteMs <= 0) {
-      // Ya expiró
-      this.authService.cerrarSesion();
-      this.router.navigate(['/login']);
+      this.expirarYRedirigir();
       return;
     }
 
+    // Programar cierre definitivo al cumplirse el tiempo exacto de expiración (expMs)
+    this.timerExpiracionFinal = setTimeout(() => {
+      if (this.authService.obtenerToken()) {
+        this.expirarYRedirigir();
+      }
+    }, tiempoRestanteMs);
+
     if (tiempoHastaAvisoMs <= 0) {
-      // Faltan 30 segundos o menos: mostrar aviso de inmediato
+      // Ya quedan 30 segundos o menos: mostrar aviso de inmediato
       this.mostrarModalSesion = true;
       this.cdr.detectChanges();
       return;
     }
 
+    // Programar el aviso 30 segundos antes de expMs
     this.timerSesion = setTimeout(() => {
       if (this.authService.obtenerToken()) {
         this.mostrarModalSesion = true;
@@ -81,10 +88,22 @@ export class AppComponent implements OnInit, OnDestroy {
     }, tiempoHastaAvisoMs);
   }
 
-  private limpiarContadorSesion(): void {
+  private expirarYRedirigir(): void {
+    this.limpiarContadoresSesion();
+    this.mostrarModalSesion = false;
+    this.authService.cerrarSesion();
+    this.cdr.detectChanges();
+    this.router.navigate(['/login']);
+  }
+
+  private limpiarContadoresSesion(): void {
     if (this.timerSesion) {
       clearTimeout(this.timerSesion);
       this.timerSesion = null;
+    }
+    if (this.timerExpiracionFinal) {
+      clearTimeout(this.timerExpiracionFinal);
+      this.timerExpiracionFinal = null;
     }
   }
 
@@ -94,11 +113,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authService.refrescar().subscribe({
       next: () => {
-        // Al guardar el nuevo token, sesionActiva$ reprograma el aviso a exp - 30s
+        // sesionActiva$ emite true y reprograma ambos timers por 10 minutos nuevos
       },
       error: () => {
-        this.authService.cerrarSesion();
-        this.router.navigate(['/login']);
+        this.expirarYRedirigir();
       }
     });
   }
@@ -109,7 +127,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.limpiarContadorSesion();
+    this.limpiarContadoresSesion();
     this.sesionSub?.unsubscribe();
   }
 }
