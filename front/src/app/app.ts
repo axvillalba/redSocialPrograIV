@@ -16,6 +16,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private timerSesion: any = null;
   private timerExpiracionFinal: any = null;
   private sesionSub?: Subscription;
+  private intervaloSincronizacion: any = null;
 
   // Aviso exactamente 30 segundos antes de que expire el JWT
   private readonly MARGEN_AVISO_MS = 30 * 1000;
@@ -30,12 +31,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.sesionSub = this.authService.sesionActiva$.subscribe((activa) => {
       if (activa) {
         this.programarAvisoDesdeToken();
+        this.iniciarSincronizacionEstado();
+
       } else {
         this.limpiarContadoresSesion();
         this.mostrarModalSesion = false;
         this.cdr.detectChanges();
       }
     });
+
   }
 
   private obtenerExpiracionMs(token: string): number | null {
@@ -125,9 +129,52 @@ export class AppComponent implements OnInit, OnDestroy {
     this.mostrarModalSesion = false;
     this.cdr.detectChanges();
   }
+private iniciarSincronizacionEstado(): void {
+    this.detenerSincronizacionEstado();
+
+    this.intervaloSincronizacion = setInterval(() => {
+      const token = this.authService.obtenerToken();
+      const usuarioLocal = this.authService.obtenerUsuarioActual();
+      const id = usuarioLocal?._id || usuarioLocal?.id;
+
+      if (!token || !id) return;
+
+      this.authService.obtenerUsuarioPorId(id).subscribe({
+        next: (usuarioFresco) => {
+          // 1. Si fue deshabilitado por un admin -> expulsar inmediatamente
+          if (usuarioFresco.activo === false) {
+            this.expirarYRedirigir();
+            return;
+          }
+
+          // 2. Si le cambiaron el rol (ej: pasó de usuario a administrador) -> actualizar sesión en caliente
+          if (usuarioFresco.perfil !== usuarioLocal.perfil) {
+            this.authService.guardarSesion({ usuario: usuarioFresco });
+            // Si ahora es admin, refrescar el token para que el JWT también tenga el nuevo rol
+            this.authService.refrescar().subscribe();
+          }
+        },
+        error: (err) => {
+          if (err.status === 401 || err.status === 404) {
+            this.expirarYRedirigir();
+          }
+        }
+      });
+    }, 15000); // Verifica cada 15 segundos
+  }
+
+  private detenerSincronizacionEstado(): void {
+    if (this.intervaloSincronizacion) {
+      clearInterval(this.intervaloSincronizacion);
+      this.intervaloSincronizacion = null;
+    }
+  }
+
+
 
   ngOnDestroy(): void {
     this.limpiarContadoresSesion();
     this.sesionSub?.unsubscribe();
+    this.detenerSincronizacionEstado();
   }
 }

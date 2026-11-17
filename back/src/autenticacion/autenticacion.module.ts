@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { AutenticacionController } from './autenticacion.controller.js';
@@ -8,10 +9,15 @@ import { Usuario, UsuarioSchema } from '../usuarios/schemas/usuario.schema.js';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Usuario.name, schema: UsuarioSchema }]),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'hextech_secret_key_arcane_2026',
-      signOptions: { expiresIn: '15m' },
-    }),
+JwtModule.registerAsync({
+  global: true, // <--- Agregá esta línea
+  imports: [ConfigModule],
+  inject: [ConfigService],
+  useFactory: (configService: ConfigService) => ({
+    secret: configService.get<string>('JWT_SECRET') || 'secreto_hextech_super_seguro',
+    signOptions: { expiresIn: '15m' },
+  }),
+}),
   ],
   controllers: [AutenticacionController],
   providers: [AutenticacionService],
