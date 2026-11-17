@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuariosService {
  //private apiUrl = 'http://localhost:3000/usuarios';
- private apiUrl = 'https://red-social-progra-iv.vercel.app';
-
+ //private apiUrl = 'https://red-social-progra-iv.vercel.app';
+ private apiUrl = `${environment.apiUrl}/usuarios`;
 
  private cloudinaryUrl = 'https://api.cloudinary.com/v1_1/zjcgupxi/image/upload';
  private uploadPreset = 'mi_app_unsigned';
