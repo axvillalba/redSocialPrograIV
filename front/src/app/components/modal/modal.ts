@@ -15,6 +15,8 @@ export class ModalComponent {
   @Input() tipo: 'alerta' | 'confirmacion' = 'alerta';
   @Input() textoConfirmar: string = 'ACEPTAR';
   @Input() textoCancelar: string = 'CANCELAR';
+  @Input() segundosRestantes: number | null = null;
+  @Input() segundosTotales = 30;
 
   @Output() alConfirmar = new EventEmitter<void>();
   @Output() alCancelar = new EventEmitter<void>();
@@ -25,5 +27,10 @@ export class ModalComponent {
 
   cancelar(): void {
     this.alCancelar.emit();
+  }
+  
+  get porcentajeTiempo(): number {
+    if (this.segundosRestantes === null || this.segundosTotales <= 0) return 0;
+    return Math.max(0, Math.min(100, (this.segundosRestantes / this.segundosTotales) * 100));
   }
 }

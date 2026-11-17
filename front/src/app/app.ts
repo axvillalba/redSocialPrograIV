@@ -20,6 +20,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Aviso exactamente 30 segundos antes de que expire el JWT
   private readonly MARGEN_AVISO_MS = 30 * 1000;
+  segundosRestantes = 30;
+  private intervaloCuentaRegresiva: any = null;
 
   constructor(
     private authService: AuthService,
@@ -79,6 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (tiempoHastaAvisoMs <= 0) {
       // Ya quedan 30 segundos o menos: mostrar aviso de inmediato
       this.mostrarModalSesion = true;
+      this.iniciarCuentaRegresivaVisual(expMs);
       this.cdr.detectChanges();
       return;
     }
@@ -87,6 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.timerSesion = setTimeout(() => {
       if (this.authService.obtenerToken()) {
         this.mostrarModalSesion = true;
+        this.iniciarCuentaRegresivaVisual(expMs);
         this.cdr.detectChanges();
       }
     }, tiempoHastaAvisoMs);
@@ -104,11 +108,14 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.timerSesion) {
       clearTimeout(this.timerSesion);
       this.timerSesion = null;
+      this.detenerCuentaRegresivaVisual();
     }
     if (this.timerExpiracionFinal) {
       clearTimeout(this.timerExpiracionFinal);
       this.timerExpiracionFinal = null;
+      this.detenerCuentaRegresivaVisual();
     }
+    
   }
 
   extenderSesion(): void {
@@ -167,6 +174,30 @@ private iniciarSincronizacionEstado(): void {
     if (this.intervaloSincronizacion) {
       clearInterval(this.intervaloSincronizacion);
       this.intervaloSincronizacion = null;
+    }
+  }
+
+  private iniciarCuentaRegresivaVisual(expMs: number): void {
+    this.detenerCuentaRegresivaVisual();
+
+    const actualizar = () => {
+      const restante = Math.max(0, Math.ceil((expMs - Date.now()) / 1000));
+      this.segundosRestantes = restante;
+      this.cdr.detectChanges();
+
+      if (restante <= 0) {
+        this.detenerCuentaRegresivaVisual();
+      }
+    };
+
+    actualizar();
+    this.intervaloCuentaRegresiva = setInterval(actualizar, 250);
+  }
+
+  private detenerCuentaRegresivaVisual(): void {
+    if (this.intervaloCuentaRegresiva) {
+      clearInterval(this.intervaloCuentaRegresiva);
+      this.intervaloCuentaRegresiva = null;
     }
   }
 

@@ -2,6 +2,14 @@
   <div class="modal-box" [ngClass]="tipo" (click)="$event.stopPropagation()">
     <header class="modal-header">
       <h3 class="modal-title">{{ titulo }}</h3>
+      @if (segundosRestantes !== null) {
+      <div class="lol-timer-container" [class.urgente]="segundosRestantes <= 10">
+        <span class="lol-timer-numero">{{ segundosRestantes }}</span>
+        <div class="lol-timer-track">
+          <div class="lol-timer-bar" [style.width.%]="porcentajeTiempo"></div>
+        </div>
+      </div>
+      }
     </header>
 
     <div class="modal-body">
@@ -9,18 +17,11 @@
     </div>
 
     <footer class="modal-footer">
-      <button 
-        type="button" 
-        class="btn-hextech-cancel" 
-        *ngIf="tipo === 'confirmacion'" 
-        (click)="cancelar()">
+      <button type="button" class="btn-hextech-cancel" *ngIf="tipo === 'confirmacion'" (click)="cancelar()">
         {{ textoCancelar }}
       </button>
 
-      <button 
-        type="button" 
-        class="btn-hextech-confirm" 
-        [class.btn-danger]="tipo === 'confirmacion'"
+      <button type="button" class="btn-hextech-confirm" [class.btn-danger]="tipo === 'confirmacion'"
         (click)="confirmar()">
         {{ textoConfirmar }}
       </button>
