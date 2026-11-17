@@ -223,15 +223,30 @@ export class PublicacionesService {
     return filtro;
   }
 
+
+  //Apartado Estadisticas.
+
+ // Apartado Estadísticas
+
+  // Helper interno para asegurar que solo se incluyan publicaciones no eliminadas
+  private obtenerFiltroActivas(extraMatch: any = {}) {
+    return {
+      ...extraMatch,
+      activo: { $ne: false },
+      eliminado: { $ne: true },
+    };
+  }
+
   // 1. Cantidad de publicaciones realizadas por cada usuario en un lapso de tiempo
   async estadisticaPublicacionesPorUsuario(desde?: string, hasta?: string) {
     const matchFecha = this.construirFiltroFechas(desde, hasta);
+    const filtro = this.obtenerFiltroActivas(matchFecha);
 
     return this.publicacionModel.aggregate([
-      { $match: matchFecha },
+      { $match: filtro },
       {
         $group: {
-          _id: '$autor', // (Si en tu schema el campo se llama 'usuario', cambiá '$autor' por '$usuario')
+          _id: '$autor',
           cantidad: { $sum: 1 },
         },
       },
@@ -258,6 +273,8 @@ export class PublicacionesService {
 
   // 2. Cantidad de comentarios realizados en un lapso de tiempo (agrupado por día)
   async estadisticaComentariosPorTiempo(desde?: string, hasta?: string) {
+    const filtroPublicaciones = this.obtenerFiltroActivas();
+
     const matchComentarioFecha: any = {};
     if (desde) {
       matchComentarioFecha['comentarios.fecha'] = {
@@ -272,7 +289,12 @@ export class PublicacionesService {
       };
     }
 
-    const pipeline: any[] = [{ $unwind: '$comentarios' }];
+    const pipeline: any[] = [
+      // Primero descartamos publicaciones dadas de baja lógica antes de desenrollar comentarios
+      { $match: filtroPublicaciones },
+      { $unwind: '$comentarios' },
+    ];
+
     if (Object.keys(matchComentarioFecha).length > 0) {
       pipeline.push({ $match: matchComentarioFecha });
     }
@@ -302,9 +324,10 @@ export class PublicacionesService {
   // 3. Cantidad de comentarios en cada publicación en un lapso de tiempo
   async estadisticaComentariosPorPublicacion(desde?: string, hasta?: string) {
     const matchFecha = this.construirFiltroFechas(desde, hasta);
+    const filtro = this.obtenerFiltroActivas(matchFecha);
 
     return this.publicacionModel.aggregate([
-      { $match: matchFecha },
+      { $match: filtro },
       {
         $project: {
           _id: 0,
@@ -316,6 +339,4 @@ export class PublicacionesService {
       { $sort: { cantidadComentarios: -1 } },
     ]);
   }
-
-
 }
