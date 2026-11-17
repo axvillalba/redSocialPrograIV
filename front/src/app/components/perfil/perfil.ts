@@ -121,19 +121,23 @@ export class PerfilComponent implements OnInit {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       this.subiendoImagen = true;
+      this.cdr.detectChanges();
 
       this.cloudinaryService.subirImagen(file).subscribe({
         next: (url: string) => {
-          // Asignamos la URL entregada por Cloudinary
           this.datosEdicion.imagenPerfilUrl = url;
           if (this.usuario) {
             this.usuario.imagenPerfilUrl = url;
           }
           this.subiendoImagen = false;
+          input.value = '';
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error al subir a Cloudinary:', err);
           this.subiendoImagen = false;
+          input.value = '';
+          this.cdr.detectChanges();
           alert('Error al subir la imagen a Cloudinary.');
         }
       });
@@ -145,8 +149,8 @@ export class PerfilComponent implements OnInit {
     if (!id || this.guardando || this.subiendoImagen) return;
 
     this.guardando = true;
+    this.cdr.detectChanges();
 
-    // Payload explícito enviando ambas variantes por compatibilidad con el DTO
     const payload = {
       ...this.datosEdicion,
       imagenPerfilUrl: this.datosEdicion.imagenPerfilUrl,
@@ -157,27 +161,18 @@ export class PerfilComponent implements OnInit {
       next: (usuarioActualizado) => {
         this.usuario = { ...this.usuario, ...usuarioActualizado, ...payload };
 
-        // Guardado mínimo en localStorage
-        try {
-          localStorage.setItem('usuario', JSON.stringify({
-            _id: id,
-            nombre: this.usuario.nombre,
-            apellido: this.usuario.apellido,
-            nombreUsuario: this.usuario.nombreUsuario,
-            imagenPerfilUrl: this.usuario.imagenPerfilUrl
-          }));
-        } catch (e) {
-          console.warn('LocalStorage omitido por límite de memoria.');
-        }
+        // Actualizamos vía authService para conservar perfil: 'administrador' y refrescar el navbar
+        this.authService.guardarSesion({ usuario: this.usuario });
 
         this.editando = false;
         this.guardando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al actualizar en MongoDB:', err);
-        this.usuario = { ...this.usuario, ...payload };
-        this.editando = false;
         this.guardando = false;
+        this.cdr.detectChanges();
+        alert('No se pudieron guardar los cambios en el servidor.');
       }
     });
   }

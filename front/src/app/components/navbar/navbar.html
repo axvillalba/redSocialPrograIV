@@ -24,33 +24,32 @@
       <span>INICIO</span>
     </a>
 
-    @if (esAdmin) {
-      <div class="admin-command-bar">
-        <span class="admin-tag">ADMIN</span>
+    <!-- Directiva estructural propia *appSoloAdmin -->
+    <div *appSoloAdmin class="admin-command-bar">
+      <span class="admin-tag">ADMIN</span>
 
-        <a
-          routerLink="/dashboard/usuarios"
-          routerLinkActive="is-active"
-          class="hex-tab hex-tab-admin"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" />
-          </svg>
-          <span>USUARIOS</span>
-        </a>
+      <a
+        routerLink="/dashboard/usuarios"
+        routerLinkActive="is-active"
+        class="hex-tab hex-tab-admin"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" />
+        </svg>
+        <span>USUARIOS</span>
+      </a>
 
-        <a
-          routerLink="/dashboard/estadisticas"
-          routerLinkActive="is-active"
-          class="hex-tab hex-tab-admin"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round" />
-          </svg>
-          <span>ESTADÍSTICAS</span>
-        </a>
-      </div>
-    }
+      <a
+        routerLink="/dashboard/estadisticas"
+        routerLinkActive="is-active"
+        class="hex-tab hex-tab-admin"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round" />
+        </svg>
+        <span>ESTADÍSTICAS</span>
+      </a>
+    </div>
   </nav>
 
   <!-- Perfil y Cierre de Sesión -->
@@ -60,7 +59,7 @@
         <div class="avatar-ring">
           <img
             [src]="obtenerAvatar()"
-            (error)="errorImagen($event)"
+            appAvatarFallback
             alt="Avatar de {{ usuario.nombreUsuario }}"
           />
         </div>
