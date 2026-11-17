@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UsuariosService {
-  private apiUrl = 'http://localhost:3000/usuarios';
- // private apiUrl: 'https://red-social-progra-iv.vercel.app'
+ //private apiUrl = 'http://localhost:3000/usuarios';
+ private apiUrl = 'https://red-social-progra-iv.vercel.app';
 
 
  private cloudinaryUrl = 'https://api.cloudinary.com/v1_1/zjcgupxi/image/upload';
