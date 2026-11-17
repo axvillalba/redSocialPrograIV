@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PublicacionesService {
-  //private readonly baseUrl = 'https://red-social-progra-iv.vercel.app'; // O tu URL de backend
-  private readonly baseUrl = 'http://localhost:3000';  //A modo de prueba
+  private readonly baseUrl = 'https://red-social-progra-iv.vercel.app'; // O tu URL de backend
+  //private readonly baseUrl = 'http://localhost:3000';  //A modo de prueba
   constructor(private readonly http: HttpClient) {}
 
   // Aceptar 'any' para evitar incompatibilidad de tipos al enviar payload
