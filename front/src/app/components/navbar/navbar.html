@@ -73,7 +73,9 @@
     }
 
     <div class="hex-divider"></div>
-
+<button class="btn-sonido-hextech" (click)="toggleSonido()" [title]="sonidoActivo ? 'Silenciar efectos Hextech' : 'Activar sonidos Hextech'">
+  {{ sonidoActivo ? '🔊' : '🔇' }}
+</button>
     <button type="button" class="btn-hex-logout" (click)="cerrarSesion()">
       CERRAR SESIÓN
     </button>
