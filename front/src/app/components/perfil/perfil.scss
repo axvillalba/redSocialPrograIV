@@ -100,6 +100,21 @@
   text-align: center;
 }
 
+.badges-perfil {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.avatar-wrapper {
+  &.rango-hierro .avatar-img   { border-color: #8c8c8c; }
+  &.rango-oro .avatar-img      { border-color: #c8aa6e; box-shadow: 0 0 12px rgba(200, 170, 110, 0.35); }
+  &.rango-diamante .avatar-img { border-color: #00cfc8; box-shadow: 0 0 14px rgba(0, 207, 200, 0.45); }
+  &.rango-retador .avatar-img  { border-color: #f4c874; box-shadow: 0 0 18px rgba(244, 200, 116, 0.65); }
+}
 .info-grid {
   display: flex;
   flex-direction: column;

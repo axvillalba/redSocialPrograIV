@@ -235,3 +235,53 @@
     }
   }
 }
+
+.hechizo-flash-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
+  background: radial-gradient(circle, #3d2e10 0%, #091428 100%);
+  border: 2px solid #c8aa6e;
+  box-shadow: 0 0 15px rgba(240, 200, 80, 0.45);
+  color: #ffe875;
+  cursor: pointer;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  .hechizo-icono {
+    font-size: 1.4rem;
+    filter: drop-shadow(0 0 6px #ffd700);
+  }
+
+  .hechizo-tecla {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    background: #010a13;
+    color: #c8aa6e;
+    padding: 0 3px;
+    border: 1px solid #785a28;
+  }
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 22px rgba(255, 225, 100, 0.85);
+  }
+
+  &.activo-flash {
+    animation: destelloDorado 0.45s ease-out;
+  }
+}
+
+@keyframes destelloDorado {
+  0%   { box-shadow: 0 0 5px #fff; transform: scale(0.9); }
+  50%  { box-shadow: 0 0 40px 15px rgba(255, 235, 120, 0.95); transform: scale(1.18); }
+  100% { box-shadow: 0 0 15px rgba(240, 200, 80, 0.45); transform: scale(1); }
+}
