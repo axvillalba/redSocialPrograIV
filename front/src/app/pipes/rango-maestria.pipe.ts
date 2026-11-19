@@ -15,10 +15,10 @@ export class RangoInvocadorPipe implements PipeTransform {
     if (cantidadPublicaciones >= 15) {
       return { nombre: 'Retador', clase: 'rango-retador', icono: '👑' };
     }
-    if (cantidadPublicaciones >= 8) {
+    if (cantidadPublicaciones >= 10) {
       return { nombre: 'Diamante', clase: 'rango-diamante', icono: '💎' };
     }
-    if (cantidadPublicaciones >= 3) {
+    if (cantidadPublicaciones >= 4) {
       return { nombre: 'Oro Hextech', clase: 'rango-oro', icono: '⚜️' };
     }
     return { nombre: 'Hierro', clase: 'rango-hierro', icono: '🛡️' };
