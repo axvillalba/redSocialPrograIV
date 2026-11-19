@@ -9,7 +9,6 @@ import { PublicacionesService } from '../../services/publicaciones.service';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { SonidoService } from '../../services/sonido.service';
 
-
 @Component({
   selector: 'app-publicaciones-page',
   standalone: true,
@@ -205,7 +204,6 @@ export class PublicacionesPageComponent implements OnInit {
       next: (pubActualizada) => {
         this.idsProcesandoLike.delete(pub._id);
 
-        // Actualización en caliente sin recargar toda la lista ni hacer scroll
         if (pubActualizada && pubActualizada.meGusta) {
           pub.meGusta = pubActualizada.meGusta;
         } else {
@@ -226,11 +224,6 @@ export class PublicacionesPageComponent implements OnInit {
     });
   }
 
-  contarPostsAutor(autorId: string): number {
-    if (!autorId) return 0;
-    return this.publicaciones.filter(p => (p.autor?._id || p.autor) === autorId).length;
-  }
-
   @HostListener('window:scroll')
   onScroll(): void {
     this.mostrarDestello = window.scrollY > 350;
@@ -248,7 +241,6 @@ export class PublicacionesPageComponent implements OnInit {
 
     this.publicacionesService.eliminarPublicacion(publicacionId, this.usuarioActualId).subscribe({
       next: () => {
-        // Remoción instantánea del feed principal
         this.publicaciones = this.publicaciones.filter(
           (p: any) => (p._id || p.id) !== publicacionId
         );

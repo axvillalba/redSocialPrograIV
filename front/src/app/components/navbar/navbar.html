@@ -1,18 +1,28 @@
 <header class="hextech-navbar">
-  <!-- Marca / Logo -->
+  <!-- Marca / Logo con Núcleo Hextech -->
   <div class="nav-brand-section">
     <a routerLink="/publicaciones" class="brand-link">
-      <svg class="brand-bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M13 2L4.09 12.97H11L10 22L19.91 11.03H13L13 2Z" />
-      </svg>
-      <span class="brand-gold">LA GRIETA</span>
-      <span class="brand-jinx">DEL INVOCADOR</span>
+      <div class="hextech-crest" aria-hidden="true">
+        <svg class="brand-bolt" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M13 2L4.09 12.97H11L10 22L19.91 11.03H13L13 2Z" />
+        </svg>
+      </div>
+      <div class="brand-titles">
+        <div class="brand-main-line">
+          <span class="brand-gold">LA GRIETA</span>
+          <span class="brand-jinx">DEL INVOCADOR</span>
+        </div>
+        <span class="brand-subtag">PILTOVER // ZAUN NETWORK</span>
+      </div>
     </a>
   </div>
 
   <!-- Navegación Central / Panel Admin -->
   <nav class="nav-actions-center" aria-label="Navegación principal">
-    <a routerLink="/publicaciones" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
+    <a
+      routerLink="/publicaciones"
+      routerLinkActive="is-active"
+      [routerLinkActiveOptions]="{ exact: true }"
       class="hex-tab">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z" />
@@ -22,7 +32,7 @@
 
     <!-- Directiva estructural propia *appSoloAdmin -->
     <div *appSoloAdmin class="admin-command-bar">
-      <span class="admin-tag">ADMIN</span>
+      <span class="admin-tag">⚡ ADMIN</span>
 
       <a routerLink="/dashboard/usuarios" routerLinkActive="is-active" class="hex-tab hex-tab-admin">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -40,27 +50,32 @@
     </div>
   </nav>
 
-  <!-- Perfil y Cierre de Sesión -->
+  <!-- Perfil, Audio y Cierre de Sesión -->
   <div class="nav-user-section">
     @if (usuario) {
-    <a routerLink="/perfil" routerLinkActive="profile-active" class="profile-pill" title="Ver mi perfil">
-      <div class="avatar-ring">
-        <img [src]="obtenerAvatar()" appAvatarFallback alt="Avatar de {{ usuario.nombreUsuario }}" />
-      </div>
-      <div class="user-meta">
-        <span class="user-handle">&#64;{{ usuario.nombreUsuario }}</span>
-        @if (esAdmin) {
-        <span class="user-role-sub">Administrador</span>
-        }
-      </div>
-    </a>
+      <a routerLink="/perfil" routerLinkActive="profile-active" class="profile-pill" title="Ver mi perfil de Invocador">
+        <div class="avatar-ring">
+          <img [src]="obtenerAvatar()" appAvatarFallback alt="Avatar de {{ usuario.nombreUsuario }}" />
+          <span class="status-dot" title="Conectado en la Grieta"></span>
+        </div>
+        <div class="user-meta">
+          <span class="user-handle">&#64;{{ usuario.nombreUsuario }}</span>
+          <span class="user-role-sub">{{ esAdmin ? 'Consejo Admin' : 'Invocador' }}</span>
+        </div>
+      </a>
     }
 
     <div class="hex-divider"></div>
-    <button type="button" class="btn-sonido-hextech" [class.activo]="sonidoActivo" (click)="toggleSonido()"
+
+    <button
+      type="button"
+      class="btn-sonido-hextech"
+      [class.activo]="sonidoActivo"
+      (click)="toggleSonido()"
       [title]="sonidoActivo ? 'Silenciar efectos Hextech' : 'Activar sonidos Hextech'">
       {{ sonidoActivo ? '🔊' : '🔇' }}
     </button>
+
     <button type="button" class="btn-hex-logout" (click)="cerrarSesion()">
       CERRAR SESIÓN
     </button>

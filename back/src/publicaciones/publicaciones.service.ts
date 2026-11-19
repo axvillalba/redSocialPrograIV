@@ -29,6 +29,65 @@ export class PublicacionesService {
     return await nuevaPublicacion.save();
   }
 
+  // Helper interno para asegurar que solo se incluyan publicaciones no eliminadas
+  private obtenerFiltroActivas(extraMatch: any = {}) {
+    return {
+      ...extraMatch,
+      activo: { $ne: false },
+      eliminado: { $ne: true },
+    };
+  }
+
+  // Adjunta cantidadPublicaciones (mismo conteo real que en estadísticas) a autor/usuario
+  private async adjuntarConteoPublicaciones(publicaciones: any[]): Promise<any[]> {
+    if (!publicaciones.length) return publicaciones;
+
+    const idsUnicos = new Map<string, any>();
+
+    for (const pub of publicaciones) {
+      const autorObj = pub.autor || pub.usuario;
+      const rawId = autorObj?._id?.toString() || autorObj?.toString();
+      if (rawId && !idsUnicos.has(rawId)) {
+        idsUnicos.set(rawId, Types.ObjectId.isValid(rawId) ? new Types.ObjectId(rawId) : rawId);
+      }
+    }
+
+    if (idsUnicos.size === 0) return publicaciones;
+
+    const conteos = await this.publicacionModel.aggregate([
+      {
+        $match: this.obtenerFiltroActivas({
+          autor: { $in: Array.from(idsUnicos.values()) },
+        }),
+      },
+      {
+        $group: {
+          _id: '$autor',
+          cantidad: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const mapaConteos = new Map<string, number>(
+      conteos.map((c) => [c._id?.toString(), c.cantidad])
+    );
+
+    return publicaciones.map((pub) => {
+      const plano = typeof pub.toObject === 'function' ? pub.toObject() : { ...pub };
+      const autorId = plano.autor?._id?.toString() || plano.usuario?._id?.toString();
+      const total = autorId ? (mapaConteos.get(autorId) ?? 0) : 0;
+
+      if (plano.autor && typeof plano.autor === 'object') {
+        plano.autor.cantidadPublicaciones = total;
+      }
+      if (plano.usuario && typeof plano.usuario === 'object') {
+        plano.usuario.cantidadPublicaciones = total;
+      }
+
+      return plano;
+    });
+  }
+
   async obtenerTodas(params: {
     orden?: 'fecha' | 'meGusta';
     limit?: number;
@@ -36,7 +95,7 @@ export class PublicacionesService {
     usuarioId?: string;
   }) {
     const { orden = 'fecha', limit = 5, offset = 0, usuarioId } = params;
-    const filtro: any = { activo: { $ne: false } };
+    const filtro: any = this.obtenerFiltroActivas();
 
     // Filtrar por usuario convirtiendo a ObjectId y comparando autor y usuario
     if (usuarioId && usuarioId !== 'undefined' && usuarioId.trim() !== '') {
@@ -65,7 +124,8 @@ export class PublicacionesService {
       resultados.sort((a, b) => (b.meGusta?.length || 0) - (a.meGusta?.length || 0));
     }
 
-    return resultados.slice(offset, offset + limit);
+    const paginados = resultados.slice(offset, offset + limit);
+    return await this.adjuntarConteoPublicaciones(paginados);
   }
 
   async eliminarLogico(publicacionId: string, usuarioId: string, esAdmin: boolean = false) {
@@ -112,18 +172,20 @@ export class PublicacionesService {
       { new: true }
     ).exec();
   }
-  //Nuevos metodos Sprint3
+
   // Obtener detalle de 1 publicación
   async obtenerPorId(id: string) {
     const publicacion = await this.publicacionModel
-      .findOne({ _id: id, activo: true })
+      .findOne({ _id: id, ...this.obtenerFiltroActivas() })
       .populate('autor', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil')
       .populate('usuario', 'nombre apellido nombreUsuario imagenPerfilUrl imagenPerfil');
 
     if (!publicacion) {
       throw new NotFoundException('Publicación no encontrada');
     }
-    return publicacion;
+
+    const [conConteo] = await this.adjuntarConteoPublicaciones([publicacion]);
+    return conConteo;
   }
 
   // GET comentarios paginados y ordenados (más recientes primero)
@@ -223,19 +285,7 @@ export class PublicacionesService {
     return filtro;
   }
 
-
-  //Apartado Estadisticas.
-
- // Apartado Estadísticas
-
-  // Helper interno para asegurar que solo se incluyan publicaciones no eliminadas
-  private obtenerFiltroActivas(extraMatch: any = {}) {
-    return {
-      ...extraMatch,
-      activo: { $ne: false },
-      eliminado: { $ne: true },
-    };
-  }
+  // Apartado Estadísticas
 
   // 1. Cantidad de publicaciones realizadas por cada usuario en un lapso de tiempo
   async estadisticaPublicacionesPorUsuario(desde?: string, hasta?: string) {
@@ -290,7 +340,6 @@ export class PublicacionesService {
     }
 
     const pipeline: any[] = [
-      // Primero descartamos publicaciones dadas de baja lógica antes de desenrollar comentarios
       { $match: filtroPublicaciones },
       { $unwind: '$comentarios' },
     ];

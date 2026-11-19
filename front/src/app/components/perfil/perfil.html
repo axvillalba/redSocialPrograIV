@@ -7,7 +7,9 @@
     <aside class="columna-perfil">
       <!-- Modo Lectura -->
       <section class="card-perfil" *ngIf="!editando">
-        @let rango = (ultimasPublicaciones.length | rangoInvocador);
+        @let totalPostsPerfil = (ultimasPublicaciones[0]?.autor?.cantidadPublicaciones ?? ultimasPublicaciones.length);
+        @let rango = (totalPostsPerfil | rangoInvocador);
+
         <div class="avatar-wrapper" [ngClass]="rango.clase">
           <img [src]="obtenerAvatar(usuario)" (error)="errorImagen($event)" alt="Foto de perfil" class="avatar-img" />
         </div>
@@ -15,7 +17,7 @@
         <h2 class="nombre-usuario">{{ usuario.nombre }} {{ usuario.apellido }}</h2>
         <span class="username-tag">@{{ usuario.nombreUsuario || usuario.login }}</span>
         <span class="badge-rango" [ngClass]="rango.clase"
-          [title]="'Maestría basada en ' + ultimasPublicaciones.length + ' publicaciones'">
+          [title]="'Maestría basada en ' + totalPostsPerfil + ' publicaciones'">
           {{ rango.icono }} {{ rango.nombre }}
         </span>
 
@@ -114,10 +116,14 @@
       </div>
 
       <div class="publicaciones-list" *ngIf="!cargandoPublicaciones">
-        <app-publicacion *ngFor="let pub of ultimasPublicaciones" [publicacion]="pub"
-          [cantidadPostsAutor]="ultimasPublicaciones.length" [usuarioActualId]="usuario._id || usuario.id"
-          (meGustaToggled)="handleLikeToggle(pub)" (eliminarSolicitado)="handleEliminar($event)">
+        <app-publicacion
+          *ngFor="let pub of ultimasPublicaciones"
+          [publicacion]="pub"
+          [usuarioActualId]="usuario._id || usuario.id"
+          (meGustaToggled)="handleLikeToggle(pub)"
+          (eliminarSolicitado)="handleEliminar($event)">
         </app-publicacion>
+
         <div class="empty-feed" *ngIf="ultimasPublicaciones.length === 0">
           <p>Aún no realizaste ninguna publicación en la Grieta.</p>
         </div>

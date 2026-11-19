@@ -7,30 +7,31 @@ import {
   Body,
   Param,
   Query,
-  Headers,
+  Req,
   HttpCode,
   HttpStatus,
   UseGuards
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PublicacionesService } from './publicaciones.service.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { AdminGuard } from '../autenticacion/guards/admin.guard.js';
+import { JwtAuthGuard } from '../autenticacion/guards/jwt-auth.guard.js';
 
 @Controller('publicaciones')
 export class PublicacionesController {
   constructor(
     private readonly publicacionesService: PublicacionesService,
-    private readonly jwtService: JwtService,
   ) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async crear(@Body() dto: CrearPublicacionDto) {
     return await this.publicacionesService.crear(dto);
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async obtenerTodas(
     @Query('orden') orden: 'fecha' | 'meGusta' = 'fecha',
@@ -48,7 +49,7 @@ export class PublicacionesController {
     });
   }
 
-@Get('estadisticas/publicaciones-por-usuario')
+  @Get('estadisticas/publicaciones-por-usuario')
   @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.OK)
   async estadisticaPublicacionesPorUsuario(
@@ -81,6 +82,7 @@ export class PublicacionesController {
   // --- COMENTARIOS (Deben ir antes de @Get(':id')) ---
 
   @Get(':id/comentarios')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async obtenerComentarios(
     @Param('id') id: string,
@@ -95,6 +97,7 @@ export class PublicacionesController {
   }
 
   @Post(':id/comentarios')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async agregarComentario(
     @Param('id') id: string,
@@ -105,6 +108,7 @@ export class PublicacionesController {
   }
 
   @Put(':id/comentarios/:comentarioId')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async editarComentario(
     @Param('id') id: string,
@@ -123,36 +127,29 @@ export class PublicacionesController {
   // --- DETALLE DE PUBLICACIÓN ---
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async obtenerPorId(@Param('id') id: string) {
     return await this.publicacionesService.obtenerPorId(id);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async eliminar(
     @Param('id') id: string,
     @Query('usuarioId') usuarioId?: string,
-    @Headers('authorization') authHeader?: string,
+    @Req() req?: any,
   ) {
-    let idFinal = usuarioId || '';
-    let esAdmin = false;
-
-    if (authHeader?.startsWith('Bearer ')) {
-      try {
-        const token = authHeader.split(' ')[1];
-        const payload = await this.jwtService.verifyAsync(token);
-        idFinal = idFinal || payload.sub || payload.id || '';
-        esAdmin = (payload.perfil || payload.rol) === 'administrador';
-      } catch {
-        // Si el token no es válido o expiró, esAdmin permanece en false
-      }
-    }
+    const user = req?.user;
+    const idFinal = usuarioId || user?.sub || user?.id || '';
+    const esAdmin = (user?.perfil || user?.rol) === 'administrador';
 
     return await this.publicacionesService.eliminarLogico(id, idFinal, esAdmin);
   }
 
   @Post(':id/like')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async darMeGusta(
     @Param('id') id: string,
@@ -162,6 +159,7 @@ export class PublicacionesController {
   }
 
   @Delete(':id/like')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async quitarMeGusta(
     @Param('id') id: string,

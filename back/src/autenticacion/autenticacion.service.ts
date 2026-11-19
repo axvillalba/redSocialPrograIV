@@ -23,7 +23,7 @@ export class AutenticacionService {
       perfil: usuario.perfil || usuario.rol || 'usuario',
       rol: usuario.perfil || usuario.rol || 'usuario',
     };
-    return this.jwtService.signAsync(payload, { expiresIn: '10m' });
+    return this.jwtService.signAsync(payload, { expiresIn: '60s' });
   }
 
   async registrar(registroDto: RegistroDto) {
@@ -131,7 +131,7 @@ export class AutenticacionService {
         rol: payload.rol || 'usuario',
       };
 
-      const nuevoToken = await this.jwtService.signAsync(nuevoPayload, { expiresIn: '10m' });
+      const nuevoToken = await this.jwtService.signAsync(nuevoPayload, { expiresIn: '60s' });
       return {
         token: nuevoToken,
       };

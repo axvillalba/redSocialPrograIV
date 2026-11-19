@@ -5,17 +5,18 @@
   --hextech-gold: #c8aa6e;
   --hextech-gold-bright: #f0e6d2;
   --hextech-gold-dark: #785a28;
-  --hextech-cyan: #00cfc8;
-  --hextech-cyan-glow: rgba(0, 207, 200, 0.45);
-  
-  --zaun-pink: #ff0055;
-  --zaun-pink-glow: rgba(255, 0, 85, 0.55);
+  --hextech-cyan: #0ac8b9;
+  --hextech-cyan-glow: rgba(10, 200, 185, 0.45);
+
+  --zaun-pink: #e0287d;
+  --zaun-pink-glow: rgba(224, 40, 125, 0.55);
   --zaun-green: #00ff66;
 
-  --bg-deep-space: #010a13;
-  --bg-card-dark: rgba(3, 10, 22, 0.85);
+  --bg-deep-space: #0a0e17;
+  --surface-piltover: #131a29;
+  --bg-card-dark: rgba(19, 26, 41, 0.86);
   --border-subtle: #1e2b3c;
-  
+
   --font-title: 'Cinzel Decorative', 'Cinzel', serif;
   --font-subtitle: 'Cinzel', serif;
   --font-body: 'Rajdhani', sans-serif;
@@ -27,29 +28,226 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #010a13;
-  
-  background-image: 
-    linear-gradient(180deg, rgba(1, 10, 19, 0.65) 0%, rgba(1, 10, 19, 0.85) 100%),
+  background-color: var(--bg-deep-space);
+
+  background-image:
+    linear-gradient(180deg, rgba(10, 14, 23, 0.62) 0%, rgba(10, 14, 23, 0.86) 100%),
     url('./assets/bg-arcane.png');
-    
+
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  color: #f0f6f8;
+  color: var(--hextech-gold-bright);
   font-family: var(--font-body);
   transition: background-position 0.4s ease-in-out;
 }
-// --- FORZAR TRANSPARENCIA EN CONTENEDORES ---
-.card-publicacion, 
-.nueva-publicacion-card, 
-.card-perfil, 
-.login-card, 
+
+// --- ESTÉTICA PILTOVER / ART NOUVEAU EN CONTENEDORES ---
+.card-publicacion,
+.nueva-publicacion-card,
+.card-crear-post,
+.card-perfil,
+.login-card,
 .registro-card,
+.arcane-card {
+  position: relative;
+  background: linear-gradient(145deg, rgba(19, 26, 41, 0.90) 0%, rgba(10, 14, 23, 0.94) 100%) !important;
+  border: 1px solid var(--hextech-gold-dark) !important;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.82),
+    inset 0 0 30px rgba(10, 200, 185, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Esquinas recortadas (Chamfered Corners) + Marco interior Art Nouveau para Login / Registro / Cards destacadas */
+.login-card,
+.registro-card,
+.arcane-card {
+  clip-path: polygon(
+    18px 0, calc(100% - 18px) 0,
+    100% 18px, 100% calc(100% - 18px),
+    calc(100% - 18px) 100%, 18px 100%,
+    0 calc(100% - 18px), 0 18px
+  );
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(200, 170, 110, 0.35);
+    pointer-events: none;
+    clip-path: polygon(
+      14px 0, calc(100% - 14px) 0,
+      100% 14px, 100% calc(100% - 14px),
+      calc(100% - 14px) 100%, 14px 100%,
+      0 calc(100% - 14px), 0 14px
+    );
+  }
+}
+
 .publicaciones-container {
-  background: rgba(3, 10, 22, 0.82) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: transparent !important;
+}
+
+// --- INPUTS HEXTECH GLOBALES (Sin fondo blanco y brillo cian al focus) ---
+.arcane-input,
+.login-card input,
+.registro-card input,
+.card-crear-post input,
+.card-crear-post textarea,
+.card-perfil input,
+.card-perfil textarea {
+  background: rgba(10, 14, 23, 0.90) !important;
+  border: 1px solid var(--hextech-gold-dark) !important;
+  border-bottom: 2px solid var(--hextech-gold) !important;
+  color: var(--hextech-gold-bright) !important;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+
+  &::placeholder {
+    color: rgba(240, 230, 210, 0.38);
+  }
+
+  &:focus {
+    border-color: var(--hextech-cyan) !important;
+    box-shadow:
+      0 0 15px var(--hextech-cyan-glow),
+      inset 0 0 8px rgba(10, 200, 185, 0.12) !important;
+    background: rgba(15, 23, 38, 0.96) !important;
+  }
+
+  /* Evita el recuadro blanco/celeste del autocompletado de Chrome */
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--hextech-gold-bright) !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0d1320 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+// --- BOTONES PRINCIPALES HEXTECH / SHIMMER ---
+.arcane-btn-primary,
+.btn-hextech-submit {
+  position: relative;
+  font-family: var(--font-subtitle);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--hextech-gold-bright) !important;
+  background: linear-gradient(180deg, #1a2639 0%, #0b121e 100%) !important;
+  border: 2px solid var(--hextech-gold) !important;
+  box-shadow: 0 0 12px rgba(200, 170, 110, 0.22);
+  cursor: pointer;
+  transition: all 0.28s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--hextech-cyan) !important;
+    color: #ffffff !important;
+    background: linear-gradient(
+      135deg,
+      rgba(10, 200, 185, 0.24) 0%,
+      rgba(224, 40, 125, 0.24) 100%
+    ) !important;
+    box-shadow:
+      0 0 20px var(--hextech-cyan-glow),
+      0 0 34px var(--zaun-pink-glow) !important;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    border-color: var(--hextech-gold-dark) !important;
+  }
+}
+
+// --- GRAFFITI DE ZAUN (Tag spray lateral estilo Jinx) ---
+.zaun-spray-banner {
+  position: relative;
+  transform: rotate(-5deg);
+  user-select: none;
+  pointer-events: none;
+
+  .spray-tag {
+    display: inline-block;
+    font-family: var(--font-graffiti);
+    font-size: clamp(1.7rem, 2.8vw, 2.55rem);
+    line-height: 1.18;
+    color: #ff3b9a;
+    text-shadow:
+      0 0 8px var(--zaun-pink-glow),
+      0 0 22px rgba(224, 40, 125, 0.7),
+      3px 4px 0px #050811;
+    letter-spacing: 1px;
+    animation: jinxGlow 3.2s infinite ease-in-out;
+  }
+
+  .spray-highlight {
+    display: block;
+    color: #3df5e6;
+    text-shadow:
+      0 0 10px rgba(10, 200, 185, 0.95),
+      0 0 26px var(--hextech-cyan-glow),
+      3px 4px 0px #050811;
+  }
+
+  .spray-underline {
+    width: 88%;
+    height: 4px;
+    margin-top: 8px;
+    background: linear-gradient(90deg, var(--zaun-pink), var(--hextech-cyan), transparent);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px var(--zaun-pink));
+    transform: rotate(1.5deg);
+  }
+}
+
+// --- BADGES GLOBALES DE RANGO DE MAESTRÍA ---
+.badge-rango {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+
+  &.rango-hierro {
+    color: #9e9e9e;
+    background: rgba(158, 158, 158, 0.12);
+  }
+
+  &.rango-oro {
+    color: var(--hextech-gold);
+    background: rgba(200, 170, 110, 0.15);
+    box-shadow: 0 0 8px rgba(200, 170, 110, 0.25);
+  }
+
+  &.rango-diamante {
+    color: var(--hextech-cyan);
+    background: rgba(10, 200, 185, 0.15);
+    box-shadow: 0 0 8px var(--hextech-cyan-glow);
+  }
+
+  &.rango-retador {
+    color: var(--hextech-gold-bright);
+    border-color: #f4c874;
+    background: linear-gradient(135deg, rgba(200, 170, 110, 0.3), rgba(10, 200, 185, 0.25));
+    box-shadow: 0 0 12px rgba(244, 200, 116, 0.45);
+  }
 }
 
 // --- BARRA DE NAVEGACIÓN PERSONALIZADA ---
@@ -71,14 +269,14 @@ html, body {
 // --- ANIMACIONES GLOBALES ---
 @keyframes hextechPulse {
   0% { box-shadow: 0 0 10px var(--hextech-cyan-glow); }
-  50% { box-shadow: 0 0 22px rgba(0, 207, 200, 0.75); }
+  50% { box-shadow: 0 0 22px rgba(10, 200, 185, 0.75); }
   100% { box-shadow: 0 0 10px var(--hextech-cyan-glow); }
 }
 
 @keyframes jinxGlow {
-  0% { text-shadow: 0 0 4px var(--zaun-pink-glow); }
-  50% { text-shadow: 0 0 14px var(--zaun-pink), 0 0 20px var(--zaun-pink); }
-  100% { text-shadow: 0 0 4px var(--zaun-pink-glow); }
+  0% { text-shadow: 0 0 4px var(--zaun-pink-glow), 3px 4px 0px #050811; }
+  50% { text-shadow: 0 0 14px var(--zaun-pink), 0 0 22px var(--zaun-pink), 3px 4px 0px #050811; }
+  100% { text-shadow: 0 0 4px var(--zaun-pink-glow), 3px 4px 0px #050811; }
 }
 
 // --- UTILIDADES ---

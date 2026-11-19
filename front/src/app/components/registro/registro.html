@@ -1,143 +1,194 @@
 <main class="registro-container">
-  <div class="registro-card">
-    <div class="card-header">
-      <span class="header-icon">⚡</span>
-      <h2 class="title">REGISTRO DE INVOCADOR</h2>
-      <p class="subtitle">Sumate a la Grieta del Invocador y creá tu perfil</p>
-    </div>
+  <div class="registro-arcane-layout">
+    <!-- Comentario lateral estilo Spray de Zaun -->
+    <aside class="zaun-callout">
+      <div class="zaun-spray-banner">
+        <span class="spray-tag">
+          ¡FORJÁ TU LEYENDA
+          <span class="spray-highlight">EN LA GRIETA!</span>
+        </span>
+        <div class="spray-underline"></div>
+      </div>
+      <p class="zaun-subnote">⚡ Creá tu identidad de Invocador y conectá con Piltover &amp; Zaun</p>
+    </aside>
 
-    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="registro-form">
-      <!-- FILA 1: NOMBRE Y APELLIDO -->
-      <div class="form-row">
-        <div class="form-group">
-          <label for="nombre">NOMBRE</label>
-          <input 
-            type="text" 
-            id="nombre" 
-            formControlName="nombre" 
-            placeholder="Ej: Axel"
-            [class.is-invalid]="registroForm.get('nombre')?.touched && registroForm.get('nombre')?.invalid"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="apellido">APELLIDO</label>
-          <input 
-            type="text" 
-            id="apellido" 
-            formControlName="apellido" 
-            placeholder="Ej: Villalba"
-            [class.is-invalid]="registroForm.get('apellido')?.touched && registroForm.get('apellido')?.invalid"
-          />
-        </div>
+    <!-- Card Principal estilo Piltover Hextech -->
+    <div class="registro-card">
+      <div class="card-header">
+        <span class="header-icon">⚡</span>
+        <h2 class="title">REGISTRO DE INVOCADOR</h2>
+        <p class="subtitle">Sumate a la Grieta del Invocador y creá tu perfil</p>
       </div>
 
-      <!-- FILA 2: CORREO Y NOMBRE DE USUARIO -->
-      <div class="form-row">
-        <div class="form-group">
-          <label for="correo">CORREO ELECTRÓNICO</label>
-          <input 
-            type="email" 
-            id="correo" 
-            formControlName="correo" 
-            placeholder="ejemplo@lol.com"
-            [class.is-invalid]="registroForm.get('correo')?.touched && registroForm.get('correo')?.invalid"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="nombreUsuario">NOMBRE DE USUARIO</label>
-          <input 
-            type="text" 
-            id="nombreUsuario" 
-            formControlName="nombreUsuario" 
-            placeholder="axwalker"
-            [class.is-invalid]="registroForm.get('nombreUsuario')?.touched && registroForm.get('nombreUsuario')?.invalid"
-          />
-        </div>
-      </div>
-
-      <!-- FILA 3: CONTRASEÑAS -->
-      <div class="form-row">
-        <div class="form-group">
-          <label for="password">CONTRASEÑA</label>
-          <input 
-            type="password" 
-            id="password" 
-            formControlName="password" 
-            placeholder="••••••••"
-            [class.is-invalid]="registroForm.get('password')?.touched && registroForm.get('password')?.invalid"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="repetirPassword">REPETIR CONTRASEÑA</label>
-          <input 
-            type="password" 
-            id="repetirPassword" 
-            formControlName="repetirPassword" 
-            placeholder="Repita su contraseña"
-            [class.is-invalid]="registroForm.get('repetirPassword')?.touched && registroForm.get('repetirPassword')?.invalid"
-          />
-        </div>
-      </div>
-
-      <!-- FECHA DE NACIMIENTO -->
-      <div class="form-group">
-        <label for="fechaNacimiento">FECHA DE NACIMIENTO</label>
-        <input 
-          type="date" 
-          id="fechaNacimiento" 
-          formControlName="fechaNacimiento"
-          [class.is-invalid]="registroForm.get('fechaNacimiento')?.touched && registroForm.get('fechaNacimiento')?.invalid"
-        />
-      </div>
-
-      <!-- DESCRIPCIÓN BREVE -->
-      <div class="form-group">
-        <label for="descripcion">DESCRIPCIÓN BREVE</label>
-        <textarea 
-          id="descripcion" 
-          formControlName="descripcion" 
-          rows="3" 
-          placeholder="Main Mid / Ahri lover...">
-        </textarea>
-      </div>
-
-      <!-- FOTO DE PERFIL CON CLOUDINARY -->
-      <div class="form-group">
-        <label>FOTO DE PERFIL / AVATAR</label>
-        <div class="upload-zone">
-          <label class="btn-file-custom" [class.disabled]="subiendoImagen">
-            <input 
-              type="file" 
-              accept="image/*" 
-              (change)="onFileSelected($event)" 
-              [disabled]="subiendoImagen" 
-              hidden
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="registro-form">
+        <!-- FILA 1: NOMBRE Y APELLIDO -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">NOMBRE *</label>
+            <input
+              type="text"
+              id="nombre"
+              formControlName="nombre"
+              placeholder="Ej: Vi"
+              [class.is-invalid]="campoInvalido('nombre')"
             />
-            <span *ngIf="!subiendoImagen && !imagenSubidaUrl">📁 SELECCIONAR ARCHIVO</span>
-            <span *ngIf="subiendoImagen">⏳ SUBIENDO A CLOUDINARY...</span>
-            <span *ngIf="imagenSubidaUrl && !subiendoImagen">✅ IMAGEN CARGADA CORRECTAMENTE</span>
-          </label>
+            <span class="error-text" *ngIf="campoInvalido('nombre')">
+              Ingresá un nombre válido (mín. 2 caracteres).
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">APELLIDO *</label>
+            <input
+              type="text"
+              id="apellido"
+              formControlName="apellido"
+              placeholder="Ej: Lanes"
+              [class.is-invalid]="campoInvalido('apellido')"
+            />
+            <span class="error-text" *ngIf="campoInvalido('apellido')">
+              Ingresá un apellido válido (mín. 2 caracteres).
+            </span>
+          </div>
         </div>
-      </div>
 
-      <div class="alert-error" *ngIf="errorMensaje">
-        ⚠️ {{ errorMensaje }}
-      </div>
+        <!-- FILA 2: NOMBRE DE USUARIO Y FECHA DE NACIMIENTO -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombreUsuario">NOMBRE DE USUARIO *</label>
+            <input
+              type="text"
+              id="nombreUsuario"
+              formControlName="nombreUsuario"
+              placeholder="Ej: piltover_enforcer"
+              [class.is-invalid]="campoInvalido('nombreUsuario')"
+            />
+            <span class="error-text" *ngIf="campoInvalido('nombreUsuario')">
+              Mínimo 3 caracteres.
+            </span>
+          </div>
 
-      <button 
-        type="submit" 
-        class="btn-hextech-submit" 
-        [disabled]="registroForm.invalid || subiendoImagen || guardando">
-        <span *ngIf="!guardando">REGISTRARSE</span>
-        <span *ngIf="guardando">REGISTRANDO... ⏳</span>
-      </button>
-    </form>
+          <div class="form-group">
+            <label for="fechaNacimiento">FECHA DE NACIMIENTO *</label>
+            <input
+              type="date"
+              id="fechaNacimiento"
+              formControlName="fechaNacimiento"
+              [class.is-invalid]="campoInvalido('fechaNacimiento')"
+            />
+            <span class="error-text" *ngIf="campoInvalido('fechaNacimiento')">
+              Seleccioná tu fecha de nacimiento.
+            </span>
+          </div>
+        </div>
 
-    <footer class="card-footer">
-      <p>¿Ya tenés cuenta? <a routerLink="/login" class="link-hextech">Iniciá sesión aquí</a></p>
-    </footer>
+        <!-- CORREO ELECTRÓNICO -->
+        <div class="form-group">
+          <label for="correo">CORREO ELECTRÓNICO *</label>
+          <input
+            type="email"
+            id="correo"
+            formControlName="correo"
+            placeholder="invocador@piltover.com"
+            [class.is-invalid]="campoInvalido('correo')"
+          />
+          <span class="error-text" *ngIf="campoInvalido('correo')">
+            Ingresá un correo válido con dominio completo (ej: usuario&#64;dominio.com).
+          </span>
+        </div>
+
+        <!-- FILA 3: CONTRASEÑAS -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">CONTRASEÑA *</label>
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              placeholder="••••••••"
+              [class.is-invalid]="campoInvalido('password')"
+            />
+            <span class="error-text" *ngIf="campoInvalido('password')">
+              Debe tener al menos 8 caracteres, una mayúscula y un número.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="repetirPassword">REPETIR CONTRASEÑA *</label>
+            <input
+              type="password"
+              id="repetirPassword"
+              formControlName="repetirPassword"
+              placeholder="Repetí tu contraseña"
+              [class.is-invalid]="campoInvalido('repetirPassword') || (registroForm.hasError('passwordsNoCoinciden') && registroForm.get('repetirPassword')?.touched)"
+            />
+            <span
+              class="error-text"
+              *ngIf="campoInvalido('repetirPassword') || (registroForm.hasError('passwordsNoCoinciden') && registroForm.get('repetirPassword')?.touched)">
+              Las contraseñas deben coincidir.
+            </span>
+          </div>
+        </div>
+
+        <!-- FOTO DE PERFIL CON PREVISUALIZACIÓN -->
+        <div class="form-group">
+          <label>IMAGEN DE PERFIL (OPCIONAL)</label>
+
+          <div class="avatar-preview-bar" *ngIf="imagenSubidaUrl">
+            <img [src]="imagenSubidaUrl" alt="Avatar seleccionado" class="avatar-mini" />
+            <span class="avatar-ok">✅ AVATAR HEXTECH LISTO</span>
+            <button type="button" class="btn-quitar-avatar" (click)="quitarAvatar()">✕ QUITAR</button>
+          </div>
+
+          <div class="upload-zone" *ngIf="!imagenSubidaUrl">
+            <label class="btn-file-custom" [class.disabled]="subiendoImagen">
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                [disabled]="subiendoImagen"
+                hidden
+              />
+              <span *ngIf="!subiendoImagen">📁 SELECCIONAR ARCHIVO</span>
+              <span *ngIf="subiendoImagen">⏳ SUBIENDO A CLOUDINARY...</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- DESCRIPCIÓN / BIOGRAFÍA -->
+        <div class="form-group">
+          <div class="label-con-contador">
+            <label for="descripcion">DESCRIPCIÓN / BIOGRAFÍA *</label>
+            <span class="contador-chars">{{ registroForm.get('descripcion')?.value?.length || 0 }}/250</span>
+          </div>
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="3"
+            placeholder="Breve descripción del invocador (Main Mid / Ahri lover)..."
+            [class.is-invalid]="campoInvalido('descripcion')">
+          </textarea>
+          <span class="error-text" *ngIf="campoInvalido('descripcion')">
+            La descripción es obligatoria (máx. 250 caracteres).
+          </span>
+        </div>
+
+        <div class="alert-error" *ngIf="errorMensaje">
+          ⚠️ {{ errorMensaje }}
+        </div>
+
+        <button
+          type="submit"
+          class="btn-hextech-submit"
+          [disabled]="registroForm.invalid || subiendoImagen || guardando">
+          <span *ngIf="!guardando">⚔️ CREAR CUENTA DE INVOCADOR</span>
+          <span *ngIf="guardando">FORJANDO PERFIL... ⏳</span>
+        </button>
+      </form>
+
+      <footer class="card-footer">
+        <p>¿Ya tenés cuenta? <a routerLink="/login" class="link-hextech">Iniciá sesión aquí</a></p>
+      </footer>
+    </div>
   </div>
 </main>

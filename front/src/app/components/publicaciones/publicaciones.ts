@@ -37,9 +37,10 @@ export class PublicacionComponent {
       return idStr === this.usuarioActualId;
     });
   }
-  get totalPostsDelAutor(): number {
+get totalPostsDelAutor(): number {
     return this.cantidadPostsAutor
       ?? this.publicacion?.autor?.cantidadPublicaciones
+      ?? this.publicacion?.usuario?.cantidadPublicaciones
       ?? this.publicacion?.cantidadPublicacionesAutor
       ?? 0;
   }

@@ -4,11 +4,12 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { SoloAdminDirective } from '../../directives/solo-admin.directive';
 import { SonidoService } from '../../services/sonido.service';
+import { AvatarFallbackDirective } from '../../directives/avatar-fallback.directive';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, SoloAdminDirective, RouterLinkActive],
+  imports: [CommonModule, RouterLink, SoloAdminDirective, RouterLinkActive, AvatarFallbackDirective],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
 })
@@ -20,7 +21,9 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private sonidoService: SonidoService
-  ) {this.sonidoActivo = this.sonidoService.estaActivo();}
+  ) {
+    this.sonidoActivo = this.sonidoService.estaActivo();
+  }
 
   ngOnInit(): void {
     this.cargarUsuario();
@@ -42,6 +45,7 @@ export class NavbarComponent implements OnInit {
   }
 
   cerrarSesion(): void {
+    this.sonidoService.reproducirClicHextech();
     this.authService.cerrarSesion();
     this.router.navigate(['/login']);
   }
@@ -49,11 +53,12 @@ export class NavbarComponent implements OnInit {
   obtenerAvatar(): string {
     if (!this.usuario) return this.avatarGenerico();
 
-    const img = this.usuario.imagenPerfilUrl ||
-                this.usuario.imagenPerfil ||
-                this.usuario.fotoPerfil ||
-                this.usuario.avatar ||
-                this.usuario.imagenUrl;
+    const img =
+      this.usuario.imagenPerfilUrl ||
+      this.usuario.imagenPerfil ||
+      this.usuario.fotoPerfil ||
+      this.usuario.avatar ||
+      this.usuario.imagenUrl;
 
     if (!img || typeof img !== 'string') return this.avatarGenerico();
     return img;
@@ -65,9 +70,13 @@ export class NavbarComponent implements OnInit {
 
   toggleSonido(): void {
     this.sonidoActivo = this.sonidoService.alternarSonido();
+    if (this.sonidoActivo) {
+      this.sonidoService.reproducirClicHextech();
+    }
   }
+
   private avatarGenerico(): string {
     const nombre = `${this.usuario?.nombre || 'Invocador'}+${this.usuario?.apellido || ''}`;
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=091428&color=c8aa6e&size=64`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=0a0e17&color=c8aa6e&size=64`;
   }
 }

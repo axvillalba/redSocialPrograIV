@@ -118,17 +118,18 @@
       SIGUIENTE ▶
     </button>
   </section>
+
   @if (mostrarDestello) {
-  <button
-    type="button"
-    class="hechizo-flash-btn"
-    [class.activo-flash]="destellando"
-    (click)="usarDestello()"
-    title="Hechizo: Destello (Volver arriba)">
-    <span class="hechizo-icono">⚡</span>
-    <span class="hechizo-tecla">F</span>
-  </button>
-}
+    <button
+      type="button"
+      class="hechizo-flash-btn"
+      [class.activo-flash]="destellando"
+      (click)="usarDestello()"
+      title="Hechizo: Destello (Volver arriba)">
+      <span class="hechizo-icono">⚡</span>
+      <span class="hechizo-tecla">F</span>
+    </button>
+  }
 </main>
 
 <app-modal

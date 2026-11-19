@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from './services/auth';
+import { SonidoService } from './services/sonido.service';
 import { ModalComponent } from './components/modal/modal';
 
 @Component({
@@ -19,12 +20,12 @@ export class AppComponent implements OnInit, OnDestroy {
   private intervaloCuentaRegresiva: any = null;
   private sesionSub?: Subscription;
 
-  // El modal aparece exactamente 30 segundos antes de que venza el JWT
+  // El modal aparece exactamente 30 segundos antes de que venza el JWT (60s total -> aviso a los 30s)
   private readonly MARGEN_AVISO_MS = 30 * 1000;
-
 
   constructor(
     private authService: AuthService,
+    private sonidoService: SonidoService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -71,6 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (tiempoHastaAvisoMs <= 0) {
       this.mostrarModalSesion = true;
+      this.sonidoService.reproducirAlertaToken();
       this.iniciarCuentaRegresivaVisual(expMs);
       this.cdr.detectChanges();
       return;
@@ -80,6 +82,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.timerAvisoModal = setTimeout(() => {
       if (this.authService.obtenerToken()) {
         this.mostrarModalSesion = true;
+        this.sonidoService.reproducirAlertaToken();
         this.iniciarCuentaRegresivaVisual(expMs);
         this.cdr.detectChanges();
       }
@@ -115,7 +118,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private limpiarContadoresSesion(): void {
-
     if (this.timerAvisoModal) {
       clearTimeout(this.timerAvisoModal);
       this.timerAvisoModal = null;
@@ -130,7 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authService.refrescar().subscribe({
       next: () => {
-        // sesionActiva$ emite true y reprograma el próximo aviso por otros 15 minutos
+        // sesionActiva$ emite true y reprograma el próximo aviso por otros 60 segundos
       },
       error: (err) => {
         // Si justo venció antes de hacer clic en Extender, el backend devuelve 401
@@ -144,7 +146,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.mostrarModalSesion = false;
     this.cdr.detectChanges();
   }
-
 
   ngOnDestroy(): void {
     this.limpiarContadoresSesion();

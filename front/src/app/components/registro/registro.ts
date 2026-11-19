@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { CloudinaryService } from '../../services/cloudinary.service';
@@ -25,16 +32,40 @@ export class RegistroComponent {
     private cloudinaryService: CloudinaryService,
     private router: Router
   ) {
-    this.registroForm = this.fb.group({
-      nombre: ['', Validators.required],
-      apellido: ['', Validators.required],
-      correo: ['', [Validators.required, Validators.email]],
-      nombreUsuario: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      repetirPassword: ['', Validators.required],
-      fechaNacimiento: [''],
-      descripcion: ['']
-    });
+    this.registroForm = this.fb.group(
+      {
+        nombre: ['', [Validators.required, Validators.minLength(2)]],
+        apellido: ['', [Validators.required, Validators.minLength(2)]],
+        correo: ['', [Validators.required, Validators.email]],
+        nombreUsuario: ['', [Validators.required, Validators.minLength(3)]],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/)
+          ]
+        ],
+        repetirPassword: ['', Validators.required],
+        fechaNacimiento: ['', Validators.required],
+        descripcion: ['', [Validators.required, Validators.maxLength(250)]]
+      },
+      { validators: this.passwordsCoincidenValidator }
+    );
+  }
+
+  private passwordsCoincidenValidator(group: AbstractControl): ValidationErrors | null {
+    const pass = group.get('password')?.value;
+    const repetir = group.get('repetirPassword')?.value;
+    if (pass && repetir && pass !== repetir) {
+      return { passwordsNoCoinciden: true };
+    }
+    return null;
+  }
+
+  campoInvalido(campo: string): boolean {
+    const control = this.registroForm.get(campo);
+    return !!(control && (control.touched || control.dirty) && control.invalid);
   }
 
   onFileSelected(event: Event): void {
@@ -52,10 +83,14 @@ export class RegistroComponent {
         error: (err) => {
           console.error('Error al subir avatar a Cloudinary:', err);
           this.subiendoImagen = false;
-          alert('No se pudo subir la foto de perfil a Cloudinary.');
+          this.errorMensaje = 'No se pudo subir la foto de perfil a Cloudinary.';
         }
       });
     }
+  }
+
+  quitarAvatar(): void {
+    this.imagenSubidaUrl = '';
   }
 
   onSubmit(): void {
@@ -87,7 +122,6 @@ export class RegistroComponent {
     this.authService.registrar(payload).subscribe({
       next: (res: any) => {
         this.guardando = false;
-        // Guarda el token JWT devuelto por el backend y los datos del usuario en localStorage
         this.authService.guardarSesion(res);
         this.router.navigate(['/publicaciones']);
       },

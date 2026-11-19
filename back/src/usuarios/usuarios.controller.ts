@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service.js';
 import { AdminGuard } from '../autenticacion/guards/admin.guard.js';
+import { JwtAuthGuard } from '../autenticacion/guards/jwt-auth.guard.js';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -25,17 +26,20 @@ export class UsuariosController {
 
   // GET /usuarios/:id -> Obtener datos de un usuario para la página de Perfil
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async obtenerUsuarioPorId(@Param('id') id: string) {
     return this.usuariosService.obtenerPorId(id);
   }
 
   // PUT y PATCH /usuarios/:id -> Actualizar datos o foto de perfil
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async actualizarUsuarioPut(@Param('id') id: string, @Body() body: any) {
     return this.usuariosService.actualizarUsuario(id, body);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async actualizarUsuarioPatch(@Param('id') id: string, @Body() body: any) {
     return this.usuariosService.actualizarUsuario(id, body);
   }
