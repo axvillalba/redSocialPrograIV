@@ -13,15 +13,15 @@ import { ModalComponent } from './components/modal/modal';
 })
 export class AppComponent implements OnInit, OnDestroy {
   mostrarModalSesion = false;
-  private timerSesion: any = null;
-  private timerExpiracionFinal: any = null;
-  private sesionSub?: Subscription;
-  private intervaloSincronizacion: any = null;
-
-  // Aviso exactamente 30 segundos antes de que expire el JWT
-  private readonly MARGEN_AVISO_MS = 30 * 1000;
   segundosRestantes = 30;
+
+  private timerAvisoModal: any = null;
   private intervaloCuentaRegresiva: any = null;
+  private sesionSub?: Subscription;
+
+  // El modal aparece exactamente 30 segundos antes de que venza el JWT
+  private readonly MARGEN_AVISO_MS = 30 * 1000;
+
 
   constructor(
     private authService: AuthService,
@@ -33,15 +33,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.sesionSub = this.authService.sesionActiva$.subscribe((activa) => {
       if (activa) {
         this.programarAvisoDesdeToken();
-        this.iniciarSincronizacionEstado();
-
       } else {
         this.limpiarContadoresSesion();
         this.mostrarModalSesion = false;
         this.cdr.detectChanges();
       }
     });
-
   }
 
   private obtenerExpiracionMs(token: string): number | null {
@@ -66,28 +63,21 @@ export class AppComponent implements OnInit, OnDestroy {
     const tiempoRestanteMs = expMs - Date.now();
     const tiempoHastaAvisoMs = tiempoRestanteMs - this.MARGEN_AVISO_MS;
 
+    // Si el token ya venció, no se expulsa acá: queda esperando que el usuario
+    // haga una acción para que el backend responda 401 y el interceptor lo redirija.
     if (tiempoRestanteMs <= 0) {
-      this.expirarYRedirigir();
       return;
     }
 
-    // Programar cierre definitivo al cumplirse el tiempo exacto de expiración (expMs)
-    this.timerExpiracionFinal = setTimeout(() => {
-      if (this.authService.obtenerToken()) {
-        this.expirarYRedirigir();
-      }
-    }, tiempoRestanteMs);
-
     if (tiempoHastaAvisoMs <= 0) {
-      // Ya quedan 30 segundos o menos: mostrar aviso de inmediato
       this.mostrarModalSesion = true;
       this.iniciarCuentaRegresivaVisual(expMs);
       this.cdr.detectChanges();
       return;
     }
 
-    // Programar el aviso 30 segundos antes de expMs
-    this.timerSesion = setTimeout(() => {
+    // Programar la aparición del modal 30 segundos antes de expMs
+    this.timerAvisoModal = setTimeout(() => {
       if (this.authService.obtenerToken()) {
         this.mostrarModalSesion = true;
         this.iniciarCuentaRegresivaVisual(expMs);
@@ -96,98 +86,21 @@ export class AppComponent implements OnInit, OnDestroy {
     }, tiempoHastaAvisoMs);
   }
 
-  private expirarYRedirigir(): void {
-    this.limpiarContadoresSesion();
-    this.mostrarModalSesion = false;
-    this.authService.cerrarSesion();
-    this.cdr.detectChanges();
-    this.router.navigate(['/login']);
-  }
-
-  private limpiarContadoresSesion(): void {
-    if (this.timerSesion) {
-      clearTimeout(this.timerSesion);
-      this.timerSesion = null;
-      this.detenerCuentaRegresivaVisual();
-    }
-    if (this.timerExpiracionFinal) {
-      clearTimeout(this.timerExpiracionFinal);
-      this.timerExpiracionFinal = null;
-      this.detenerCuentaRegresivaVisual();
-    }
-    
-  }
-
-  extenderSesion(): void {
-    this.mostrarModalSesion = false;
-    this.cdr.detectChanges();
-
-    this.authService.refrescar().subscribe({
-      next: () => {
-        // sesionActiva$ emite true y reprograma ambos timers por 10 minutos nuevos
-      },
-      error: () => {
-        this.expirarYRedirigir();
-      }
-    });
-  }
-
-  rechazarExtension(): void {
-    this.mostrarModalSesion = false;
-    this.cdr.detectChanges();
-  }
-private iniciarSincronizacionEstado(): void {
-    this.detenerSincronizacionEstado();
-
-    this.intervaloSincronizacion = setInterval(() => {
-      const token = this.authService.obtenerToken();
-      const usuarioLocal = this.authService.obtenerUsuarioActual();
-      const id = usuarioLocal?._id || usuarioLocal?.id;
-
-      if (!token || !id) return;
-
-      this.authService.obtenerUsuarioPorId(id).subscribe({
-        next: (usuarioFresco) => {
-          // 1. Si fue deshabilitado por un admin -> expulsar inmediatamente
-          if (usuarioFresco.activo === false) {
-            this.expirarYRedirigir();
-            return;
-          }
-
-          // 2. Si le cambiaron el rol (ej: pasó de usuario a administrador) -> actualizar sesión en caliente
-          if (usuarioFresco.perfil !== usuarioLocal.perfil) {
-            this.authService.guardarSesion({ usuario: usuarioFresco });
-            // Si ahora es admin, refrescar el token para que el JWT también tenga el nuevo rol
-            this.authService.refrescar().subscribe();
-          }
-        },
-        error: (err) => {
-          if (err.status === 401 || err.status === 404) {
-            this.expirarYRedirigir();
-          }
-        }
-      });
-    }, 15000); // Verifica cada 15 segundos
-  }
-
-  private detenerSincronizacionEstado(): void {
-    if (this.intervaloSincronizacion) {
-      clearInterval(this.intervaloSincronizacion);
-      this.intervaloSincronizacion = null;
-    }
-  }
-
   private iniciarCuentaRegresivaVisual(expMs: number): void {
     this.detenerCuentaRegresivaVisual();
 
     const actualizar = () => {
       const restante = Math.max(0, Math.ceil((expMs - Date.now()) / 1000));
       this.segundosRestantes = restante;
-      this.cdr.detectChanges();
 
       if (restante <= 0) {
+        // Cuando llegan a 0 los 30s, se cierra el modal de alerta pero NO se redirige al login.
+        // El usuario sigue en pantalla hasta que intente realizar una acción y reciba 401.
         this.detenerCuentaRegresivaVisual();
+        this.mostrarModalSesion = false;
       }
+
+      this.cdr.detectChanges();
     };
 
     actualizar();
@@ -201,11 +114,40 @@ private iniciarSincronizacionEstado(): void {
     }
   }
 
+  private limpiarContadoresSesion(): void {
+
+    if (this.timerAvisoModal) {
+      clearTimeout(this.timerAvisoModal);
+      this.timerAvisoModal = null;
+    }
+    this.detenerCuentaRegresivaVisual();
+  }
+
+  extenderSesion(): void {
+    this.limpiarContadoresSesion();
+    this.mostrarModalSesion = false;
+    this.cdr.detectChanges();
+
+    this.authService.refrescar().subscribe({
+      next: () => {
+        // sesionActiva$ emite true y reprograma el próximo aviso por otros 15 minutos
+      },
+      error: (err) => {
+        // Si justo venció antes de hacer clic en Extender, el backend devuelve 401
+        console.error('Error al extender sesión (token expirado):', err);
+      }
+    });
+  }
+
+  rechazarExtension(): void {
+    this.limpiarContadoresSesion();
+    this.mostrarModalSesion = false;
+    this.cdr.detectChanges();
+  }
 
 
   ngOnDestroy(): void {
     this.limpiarContadoresSesion();
     this.sesionSub?.unsubscribe();
-    this.detenerSincronizacionEstado();
   }
 }

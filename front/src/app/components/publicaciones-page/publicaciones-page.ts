@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { PublicacionComponent } from '../publicaciones/publicaciones';
 import { ModalComponent } from '../modal/modal';
 import { PublicacionesService } from '../../services/publicaciones.service';
 import { CloudinaryService } from '../../services/cloudinary.service';
+import { SonidoService } from '../../services/sonido.service';
+
 
 @Component({
   selector: 'app-publicaciones-page',
@@ -29,6 +31,9 @@ export class PublicacionesPageComponent implements OnInit {
   subiendoImagen: boolean = false;
   idsProcesandoLike: Set<string> = new Set<string>();
 
+  mostrarDestello = false;
+  destellando = false;
+
   // Configuración de Modal
   modalState = {
     mostrar: false,
@@ -47,8 +52,9 @@ export class PublicacionesPageComponent implements OnInit {
     private publicacionesService: PublicacionesService,
     private cloudinaryService: CloudinaryService,
     private cdr: ChangeDetectorRef,
+    private sonidoService: SonidoService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const usuarioLocal = localStorage.getItem('usuario');
@@ -187,7 +193,7 @@ export class PublicacionesPageComponent implements OnInit {
 
     this.idsProcesandoLike.add(pub._id);
 
-    const yaDioLike = pub.meGusta?.some((id: any) => 
+    const yaDioLike = pub.meGusta?.some((id: any) =>
       (typeof id === 'string' ? id : id._id || id.id) === this.usuarioActualId
     );
 
@@ -205,7 +211,7 @@ export class PublicacionesPageComponent implements OnInit {
         } else {
           if (!pub.meGusta) pub.meGusta = [];
           if (yaDioLike) {
-            pub.meGusta = pub.meGusta.filter((id: any) => 
+            pub.meGusta = pub.meGusta.filter((id: any) =>
               (typeof id === 'string' ? id : id._id || id.id) !== this.usuarioActualId
             );
           } else {
@@ -220,18 +226,35 @@ export class PublicacionesPageComponent implements OnInit {
     });
   }
 
-handleEliminar(publicacionId: string): void {
-  if (!this.usuarioActualId || !publicacionId) return;
+  contarPostsAutor(autorId: string): number {
+    if (!autorId) return 0;
+    return this.publicaciones.filter(p => (p.autor?._id || p.autor) === autorId).length;
+  }
 
-  this.publicacionesService.eliminarPublicacion(publicacionId, this.usuarioActualId).subscribe({
-    next: () => {
-      // Remoción instantánea del feed principal
-      this.publicaciones = this.publicaciones.filter(
-        (p: any) => (p._id || p.id) !== publicacionId
-      );
-      this.cargarPublicaciones();
-    },
-    error: (err) => console.error('Error al eliminar publicación desde el feed:', err)
-  });
-}
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.mostrarDestello = window.scrollY > 350;
+  }
+
+  usarDestello(): void {
+    this.destellando = true;
+    this.sonidoService.reproducirDestello();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => (this.destellando = false), 450);
+  }
+
+  handleEliminar(publicacionId: string): void {
+    if (!this.usuarioActualId || !publicacionId) return;
+
+    this.publicacionesService.eliminarPublicacion(publicacionId, this.usuarioActualId).subscribe({
+      next: () => {
+        // Remoción instantánea del feed principal
+        this.publicaciones = this.publicaciones.filter(
+          (p: any) => (p._id || p.id) !== publicacionId
+        );
+        this.cargarPublicaciones();
+      },
+      error: (err) => console.error('Error al eliminar publicación desde el feed:', err)
+    });
+  }
 }

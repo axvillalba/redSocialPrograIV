@@ -35,11 +35,12 @@
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(120, 90, 40, 0.3);
 
-  .usuario-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
   .autor-tag {
     color: #00cfc8;
@@ -134,8 +135,8 @@
   align-items: center;
   gap: 6px;
   background: rgba(200, 170, 110, 0.08);
-  border: 1px solid #785a28;
-  color: #cdbe91;
+  border: 1px solid rgba(200, 170, 110, 0.45);
+  color: #c8aa6e;
   padding: 7px 14px;
   border-radius: 2px;
   font-size: 0.82rem;
@@ -144,22 +145,26 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover:not([disabled]),
-  &.liked {
-    border-color: #e84057;
-    color: #ff6b81;
-    background: rgba(232, 64, 87, 0.14);
-    box-shadow: 0 0 10px rgba(232, 64, 87, 0.25);
+  &:hover:not(:disabled) {
+    background: rgba(255, 107, 43, 0.14);
+    border-color: rgba(255, 107, 43, 0.65);
+    color: #ff8c5a;
   }
 
-  &[disabled] {
+  &.liked {
+    background: rgba(255, 107, 43, 0.16);
+    border-color: #ff6b2b;
+    color: #ff6b2b;
+    box-shadow: 0 0 12px rgba(255, 107, 43, 0.35);
+
+    .corazon {
+      filter: drop-shadow(0 0 6px rgba(255, 107, 43, 0.85));
+    }
+  }
+
+  &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-  }
-
-  .spinner-sm {
-    display: inline-block;
-    animation: pulseSpin 1s linear infinite;
   }
 }
 

@@ -7,6 +7,7 @@ import { PublicacionesService } from '../../services/publicaciones.service';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { PublicacionComponent } from '../publicaciones/publicaciones';
 import { NavbarComponent } from '../navbar/navbar';
+import { RangoInvocadorPipe } from '../../pipes/rango-maestria.pipe';
 
 @Component({
   selector: 'app-perfil',
@@ -16,7 +17,8 @@ import { NavbarComponent } from '../navbar/navbar';
     FormsModule,
     DatePipe,
     NavbarComponent,
-    PublicacionComponent
+    PublicacionComponent,
+    RangoInvocadorPipe
   ],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss'

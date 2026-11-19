@@ -7,11 +7,13 @@ import { TruncarTextoPipe } from '../../pipes/truncar-texto.pipe';
 import { AuthService } from '../../services/auth';
 import { AvatarFallbackDirective } from '../../directives/avatar-fallback.directive';
 import { HextechGlowDirective } from '../../directives/hextech-glow.directive';
+import { RangoInvocadorPipe } from '../../pipes/rango-maestria.pipe';
+import { SonidoService } from '../../services/sonido.service';
 
 @Component({
   selector: 'app-publicacion',
   standalone: true,
-  imports: [CommonModule, ModalComponent, AvatarFallbackDirective,HextechGlowDirective, TiempoHacePipe, TruncarTextoPipe, RouterLink],
+  imports: [CommonModule, RangoInvocadorPipe, ModalComponent, AvatarFallbackDirective, HextechGlowDirective, TiempoHacePipe, TruncarTextoPipe, RouterLink],
   templateUrl: './publicaciones.html',
   styleUrls: ['./publicaciones.scss'],
 })
@@ -19,13 +21,14 @@ export class PublicacionComponent {
   @Input() publicacion!: any;
   @Input() usuarioActualId!: string;
   @Input() procesandoLike: boolean = false;
+  @Input() cantidadPostsAutor?: number;
 
   @Output() meGustaToggled = new EventEmitter<void>();
   @Output() eliminarSolicitado = new EventEmitter<string>();
-
+//@Output () sonidoService = new EventEmitter<void>();
   mostrarModalEliminar: boolean = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,private sonidoService: SonidoService) { }
 
   get usuarioYaDioLike(): boolean {
     if (!this.publicacion?.meGusta || !this.usuarioActualId) return false;
@@ -33,6 +36,12 @@ export class PublicacionComponent {
       const idStr = typeof id === 'string' ? id : (id._id || id.id || id.toString());
       return idStr === this.usuarioActualId;
     });
+  }
+  get totalPostsDelAutor(): number {
+    return this.cantidadPostsAutor
+      ?? this.publicacion?.autor?.cantidadPublicaciones
+      ?? this.publicacion?.cantidadPublicacionesAutor
+      ?? 0;
   }
 
   get puedeEliminar(): boolean {
@@ -53,12 +62,14 @@ export class PublicacionComponent {
 
   toggleLike(): void {
     if (this.procesandoLike) return;
+    this.sonidoService.reproducirClicHextech();
     this.meGustaToggled.emit();
   }
 
   solicitarEliminar(): void {
     this.mostrarModalEliminar = true;
   }
+
 
   confirmarEliminacion(): void {
     this.mostrarModalEliminar = false;

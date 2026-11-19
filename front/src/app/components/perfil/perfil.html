@@ -2,23 +2,22 @@
 
 <main class="perfil-container" *ngIf="usuario">
   <div class="perfil-grid-layout">
-    
+
     <!-- COLUMNA IZQUIERDA -->
     <aside class="columna-perfil">
       <!-- Modo Lectura -->
       <section class="card-perfil" *ngIf="!editando">
-        <div class="avatar-wrapper">
-          <img 
-            [src]="obtenerAvatar(usuario)" 
-            (error)="errorImagen($event)" 
-            alt="Foto de perfil" 
-            class="avatar-img" 
-          />
+        @let rango = (ultimasPublicaciones.length | rangoInvocador);
+        <div class="avatar-wrapper" [ngClass]="rango.clase">
+          <img [src]="obtenerAvatar(usuario)" (error)="errorImagen($event)" alt="Foto de perfil" class="avatar-img" />
         </div>
 
         <h2 class="nombre-usuario">{{ usuario.nombre }} {{ usuario.apellido }}</h2>
         <span class="username-tag">@{{ usuario.nombreUsuario || usuario.login }}</span>
-        <span class="rol-badge">INVOCADOR</span>
+        <span class="badge-rango" [ngClass]="rango.clase"
+          [title]="'Maestría basada en ' + ultimasPublicaciones.length + ' publicaciones'">
+          {{ rango.icono }} {{ rango.nombre }}
+        </span>
 
         <div class="info-grid">
           <div class="info-item">
@@ -28,7 +27,8 @@
 
           <div class="info-item">
             <label>FECHA DE NACIMIENTO</label>
-<p>{{ (usuario.fechaNacimiento | date:'dd/MM/yyyy':'UTC') || 'Sin especificar' }}</p>          </div>
+            <p>{{ (usuario.fechaNacimiento | date:'dd/MM/yyyy':'UTC') || 'Sin especificar' }}</p>
+          </div>
         </div>
 
         <div class="bio-section" *ngIf="usuario.descripcion || usuario.bio">
@@ -44,12 +44,8 @@
       <!-- Modo Edición -->
       <section class="card-perfil" *ngIf="editando">
         <div class="avatar-wrapper">
-          <img 
-            [src]="datosEdicion.imagenPerfilUrl || obtenerAvatar(usuario)" 
-            (error)="errorImagen($event)" 
-            alt="Previsualización Avatar" 
-            class="avatar-img" 
-          />
+          <img [src]="datosEdicion.imagenPerfilUrl || obtenerAvatar(usuario)" (error)="errorImagen($event)"
+            alt="Previsualización Avatar" class="avatar-img" />
         </div>
 
         <h3 class="title-editar">EDITAR DATOS DE INVOCADOR</h3>
@@ -80,13 +76,8 @@
           <label>FOTO DE PERFIL / AVATAR</label>
           <div class="upload-zone">
             <label class="btn-file-custom" [class.disabled]="subiendoImagen || guardando">
-              <input 
-                type="file" 
-                accept="image/*" 
-                (change)="onFileSelected($event)" 
-                [disabled]="subiendoImagen || guardando" 
-                hidden
-              />
+              <input type="file" accept="image/*" (change)="onFileSelected($event)"
+                [disabled]="subiendoImagen || guardando" hidden />
               <span *ngIf="!subiendoImagen">📁 ELEGIR IMAGEN DEL ORDENADOR</span>
               <span *ngIf="subiendoImagen">⏳ SUBIENDO A CLOUDINARY...</span>
             </label>
@@ -99,19 +90,13 @@
         </div>
 
         <div class="btn-actions">
-          <button 
-            type="button" 
-            class="btn-hextech-submit" 
-            (click)="guardarCambios()" 
+          <button type="button" class="btn-hextech-submit" (click)="guardarCambios()"
             [disabled]="guardando || subiendoImagen">
             <span *ngIf="!guardando">GUARDAR CAMBIOS</span>
             <span *ngIf="guardando">GUARDANDO... ⏳</span>
           </button>
 
-          <button 
-            type="button" 
-            class="btn-hextech-cancel" 
-            (click)="cancelarEdicion()" 
+          <button type="button" class="btn-hextech-cancel" (click)="cancelarEdicion()"
             [disabled]="guardando || subiendoImagen">
             CANCELAR
           </button>
@@ -129,14 +114,10 @@
       </div>
 
       <div class="publicaciones-list" *ngIf="!cargandoPublicaciones">
-        <app-publicacion
-          *ngFor="let pub of ultimasPublicaciones"
-          [publicacion]="pub"
-          [usuarioActualId]="usuario._id || usuario.id"
-          (meGustaToggled)="handleLikeToggle(pub)"
-          (eliminarSolicitado)="handleEliminar($event)">
+        <app-publicacion *ngFor="let pub of ultimasPublicaciones" [publicacion]="pub"
+          [cantidadPostsAutor]="ultimasPublicaciones.length" [usuarioActualId]="usuario._id || usuario.id"
+          (meGustaToggled)="handleLikeToggle(pub)" (eliminarSolicitado)="handleEliminar($event)">
         </app-publicacion>
-
         <div class="empty-feed" *ngIf="ultimasPublicaciones.length === 0">
           <p>Aún no realizaste ninguna publicación en la Grieta.</p>
         </div>

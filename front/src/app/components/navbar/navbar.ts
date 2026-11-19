@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { SoloAdminDirective } from '../../directives/solo-admin.directive';
+import { SonidoService } from '../../services/sonido.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,11 +14,13 @@ import { SoloAdminDirective } from '../../directives/solo-admin.directive';
 })
 export class NavbarComponent implements OnInit {
   usuario: any = null;
+  sonidoActivo = false;
 
   constructor(
     private router: Router,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private sonidoService: SonidoService
+  ) {this.sonidoActivo = this.sonidoService.estaActivo();}
 
   ngOnInit(): void {
     this.cargarUsuario();
@@ -60,6 +63,9 @@ export class NavbarComponent implements OnInit {
     event.target.src = this.avatarGenerico();
   }
 
+  toggleSonido(): void {
+    this.sonidoActivo = this.sonidoService.alternarSonido();
+  }
   private avatarGenerico(): string {
     const nombre = `${this.usuario?.nombre || 'Invocador'}+${this.usuario?.apellido || ''}`;
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=091428&color=c8aa6e&size=64`;
